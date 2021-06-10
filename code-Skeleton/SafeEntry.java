@@ -1,9 +1,9 @@
 /*
-	Code: Calculator Interface	calculator.java
+	Code: SafeEntry Interface	SafeEntry.java
 
-	The calculator interface provides a description of the 5 remote
-	arithmetic methods available as part of the service provided
-	by the remote object calculatorimpl. Note carefully that the interface
+	The SafeEntry interface provides a description of the
+	 methods available as part of the service provided
+	by the remote object SafeEntryimpl. Note carefully that the interface
 	extends remote and each methods throws a remote exception.
 */
 

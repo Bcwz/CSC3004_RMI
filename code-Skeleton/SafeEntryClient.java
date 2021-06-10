@@ -9,7 +9,8 @@ public class SafeEntryClient {
 
     public static void main(String[] args)throws InterruptedException {
     	final Scanner scan = new Scanner(System.in);
-
+    	final String nricRegex = "^[STFG]\\d{7}[A-Z]$";
+    	final String dateTimeRegex = "^(3[01]|[12][0-9]|0[1-9])/(1[0-2]|0[1-9])/[0-9]{4} (2[0-3]|[01]?[0-9]):([0-5]?[0-9]):([0-5]?[0-9])$";
 		/*
 		 * //use localhost if running the server locally or use IP address of the server
 		 * String reg_host = "localhost"; int reg_port = 1099;

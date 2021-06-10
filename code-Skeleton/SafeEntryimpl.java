@@ -16,10 +16,12 @@ public class SafeEntryimpl extends java.rmi.server.UnicastRemoteObject implement
     //SafeEntry checkin method
     public synchronized String checkin(String name)
         throws java.rmi.RemoteException {
+    	
 		/* Put methods to connect to MongoDB,
 		 * save checkin info to MongoDB.
 		 * should be able to just copy paste existing code here
 		*/
+    	
     	return name;
     	
     }
