@@ -10,16 +10,14 @@ public class SafeEntryClient {
     public static void main(String[] args)throws InterruptedException {
     	final Scanner scan = new Scanner(System.in);
 
-      //use localhost if running the server locally or use IP address of the server
-       String reg_host = "localhost";
-       int reg_port = 1099;
-
-       if (args.length == 1) {
-       	   reg_port = Integer.parseInt(args[0]);
-       } else if (args.length == 2) {
-      	   reg_host = args[0];
-      	   reg_port = Integer.parseInt(args[1]);
-      }
+		/*
+		 * //use localhost if running the server locally or use IP address of the server
+		 * String reg_host = "localhost"; int reg_port = 1099;
+		 * 
+		 * if (args.length == 1) { reg_port = Integer.parseInt(args[0]); } else if
+		 * (args.length == 2) { reg_host = args[0]; reg_port =
+		 * Integer.parseInt(args[1]); }
+		 */
 
 	try {
 
@@ -37,7 +35,7 @@ public class SafeEntryClient {
 		
 		while (true) {
 			System.out.println("~~~~~~~~~~~~~~~~ SafeEntry Check-in selected ~~~~~~~~~~~~~~~~ ");
-			System.out.print("Enter Name: ");
+			System.out.println("Enter Name: ");
 			String name = scan.nextLine();
 			//Copy paste this Thread for all checkin/checkout
 			new Thread(new Runnable() {
