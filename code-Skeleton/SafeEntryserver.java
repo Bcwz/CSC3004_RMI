@@ -9,7 +9,7 @@ import java.rmi.Naming;	//Import naming classes to bind to rmiregistry
 
 public class SafeEntryserver {
 	static int port = 1099;
-   //calculatorserver constructor
+   
    public SafeEntryserver() {
 
 		 try {

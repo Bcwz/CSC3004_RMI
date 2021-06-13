@@ -38,6 +38,7 @@ public class SafeEntryClient {
 			System.out.println("~~~~~~~~~~~~~~~~ SafeEntry Check-in selected ~~~~~~~~~~~~~~~~ ");
 			System.out.println("Enter Name: ");
 			String name = scan.nextLine();
+			
 			//Copy paste this Thread for all checkin/checkout
 			new Thread(new Runnable() {
 				public void run() {
