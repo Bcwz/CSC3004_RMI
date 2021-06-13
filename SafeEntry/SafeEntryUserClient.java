@@ -26,7 +26,7 @@ public class SafeEntryUserClient extends java.rmi.server.UnicastRemoteObject imp
 	
     public static void main(String[] args) {
         
-       String reg_host = "localhost";
+       String reg_host = "192.168.86.32";
        int reg_port = 1099;
        
        if (args.length == 1) {
