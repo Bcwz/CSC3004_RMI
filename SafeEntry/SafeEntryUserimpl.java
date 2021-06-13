@@ -8,6 +8,26 @@
 // The implementation Class must implement the rmi interface (calculator)
 // and be set as a Remote object on a server
 import java.util.*;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+
+import org.bson.Document;
+import org.bson.conversions.Bson;
+
+import com.mongodb.client.MongoCollection;
+import com.mongodb.client.MongoCursor;
+import com.mongodb.client.model.Filters;
+import com.mongodb.client.model.FindOneAndReplaceOptions;
+import com.mongodb.client.model.ReturnDocument;
+
+import classes.FamilyMembers;
+import classes.InfectedLocations;
+import classes.Transactions;
+import classes.Users;
+
+import com.mongodb.client.MongoCollection;
 
 public class SafeEntryUserimpl extends java.rmi.server.UnicastRemoteObject implements SafeEntryUser {
 
@@ -22,9 +42,9 @@ public class SafeEntryUserimpl extends java.rmi.server.UnicastRemoteObject imple
 
     // Implementation of the add method
     // The two long parameters are added added and the result is retured
-    public void add(RMIClientIntf client, long a, long b)
+    public void selfCheckIn(RMIClientIntf client)
         throws java.rmi.RemoteException {
-        System.out.println("performing addition: " + a + " + " + b);
+    	
 		    c = client;
 
 		Thread thread = new Thread(new Runnable() {
@@ -35,7 +55,8 @@ public class SafeEntryUserimpl extends java.rmi.server.UnicastRemoteObject imple
 				int timer = rg.nextInt(5000);
 				try {
 					Thread.sleep(timer);
-					c.callBack(a+b);
+					c.callBack("Check-in SUCCESS");
+					
 				} catch (java.rmi.RemoteException e) {
 					e.printStackTrace();
 				} catch(InterruptedException ee) {}
@@ -46,9 +67,9 @@ public class SafeEntryUserimpl extends java.rmi.server.UnicastRemoteObject imple
     }
 
     // Subtract the second parameter from the first and return the result
-    public void sub(RMIClientIntf client, long a, long b)
+    public void selfCheckOut(RMIClientIntf client)
         throws java.rmi.RemoteException {
-        System.out.println("performing substraction: " + a + " - " + b);
+     
 		c = client;
 
 		Thread thread = new Thread(new Runnable() {
@@ -59,7 +80,8 @@ public class SafeEntryUserimpl extends java.rmi.server.UnicastRemoteObject imple
 				int timer = rg.nextInt(5000);
 				try {
 					Thread.sleep(timer);
-					c.callBack(a-b);
+					
+					c.callBack("Check-out SUCCESS");
 				} catch (java.rmi.RemoteException e) {
 					e.printStackTrace();
 				} catch(InterruptedException ee) {}
@@ -67,30 +89,5 @@ public class SafeEntryUserimpl extends java.rmi.server.UnicastRemoteObject imple
 			});
 		thread.start();
 	return;
-    }
-
-    // Multiply the two parameters and return the result
-    public long mul(long a, long b)
-        throws java.rmi.RemoteException {
-        System.out.println("performing multiplication: " + a + " * " + b);
-	return a * b;
-    }
-
-    // Divide first parameter by the second and return the result
-    public long div(long a, long b)
-        throws java.rmi.RemoteException {
-        System.out.println("performing division: " + a + " / " + b);
-	return a / b;
-    }
-
-    // Recursive power definition
-    public long pow(long a, int b)
-	throws java.rmi.RemoteException {
-
-	System.out.println("performing power operation: " + a + " ^ " + b);
-	if (b==0)
-		return 1;
-	else
-		return a*pow(a, b-1);
     }
 }

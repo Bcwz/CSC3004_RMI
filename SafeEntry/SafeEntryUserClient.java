@@ -18,7 +18,7 @@ public class SafeEntryUserClient extends java.rmi.server.UnicastRemoteObject imp
 		
 	}
 	
-	public void callBack(long s) 
+	public void callBack(String s) 
 		throws java.rmi.RemoteException {
 	
 		System.out.println("callback:" + s);
@@ -46,12 +46,10 @@ public class SafeEntryUserClient extends java.rmi.server.UnicastRemoteObject imp
             
 	    // Now use the reference c to call remote methods
 	    //System.out.println("3+21="+ c.add(cc, 3, 21) );		
-		SEU.add(SEC, 3, 21);
+		SEU.selfCheckIn(SEC);
         //System.out.println("18-9="+ c.sub(cc, 18, 9) );
-		SEU.sub(SEC, 18, 9);
-        System.out.println("4*17="+ SEU.mul(4, 17) );
-        System.out.println("70/10="+ SEU.div(70, 10) );
-	    System.out.println("2^5="+ SEU.pow(2, 5) );
+		SEU.selfCheckOut(SEC);
+
         }
         // Catch the exceptions that may occur - rubbish URL, Remote exception
 	// Not bound exception or the arithmetic exception that may occur in 
