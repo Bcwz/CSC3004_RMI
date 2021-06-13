@@ -2,13 +2,13 @@
  * SafeEntryimpl - put the the methods for public users here (NOT SafeEntryOfficer)
  *  
  */
-public class SafeEntryimpl extends java.rmi.server.UnicastRemoteObject implements SafeEntry
+public class SafeEntryUserimpl extends java.rmi.server.UnicastRemoteObject implements SafeEntryUser
 {
 
     // Implementations must have an explicit constructor
     // in order to declare the RemoteException exception
 
-    public SafeEntryimpl()
+    public SafeEntryUserimpl()
         throws java.rmi.RemoteException {
         super();
     }

@@ -15,7 +15,7 @@ public class SafeEntryserver {
 		 try {
 		 		//Construct a new CalculatorImpl object and bind it to the local rmiregistry
      		//N.b. it is possible to host multiple objects on a server
-			 SafeEntry SE = new SafeEntryimpl();
+			 SafeEntryUser SE = new SafeEntryUserimpl();
 			 Naming.rebind("rmi://localhost/SafeEntryService", SE);
      }
      catch (Exception e) {

@@ -5,7 +5,7 @@ import java.net.MalformedURLException;	//Import the MalformedURLException class 
 import java.rmi.NotBoundException;	//Import the NotBoundException class so you can catch it
 import java.util.Scanner;  // Import the Scanner class
 
-public class SafeEntryClient {
+public class SafeEntryUserClient {
 
     public static void main(String[] args)throws InterruptedException {
     	final Scanner scan = new Scanner(System.in);
@@ -23,7 +23,7 @@ public class SafeEntryClient {
 	try {
 
 	    // Create the reference to the remote object through the remiregistry
-		SafeEntry SE = (SafeEntry)
+		SafeEntryUser SE = (SafeEntryUser)
 				Naming.lookup("rmi://localhost/SafeEntryService");
 
 		

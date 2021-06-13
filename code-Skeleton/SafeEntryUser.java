@@ -8,7 +8,7 @@
 */
 
 
-public interface SafeEntry
+public interface SafeEntryUser
           extends java.rmi.Remote {
 
 
