@@ -54,12 +54,12 @@ public class SafeEntryUserimpl extends java.rmi.server.UnicastRemoteObject imple
 				Random rg = new Random();
 				int timer = rg.nextInt(5000);
 				try {
-					Thread.sleep(timer);
+					//Thread.sleep(timer);
 					c.callBack("Check-in SUCCESS");
 					
 				} catch (java.rmi.RemoteException e) {
 					e.printStackTrace();
-				} catch(InterruptedException ee) {}
+				}
 			}
 			});
 		thread.start();
@@ -79,12 +79,12 @@ public class SafeEntryUserimpl extends java.rmi.server.UnicastRemoteObject imple
 				Random rg = new Random();
 				int timer = rg.nextInt(5000);
 				try {
-					Thread.sleep(timer);
+					//Thread.sleep(timer);
 					
 					c.callBack("Check-out SUCCESS");
 				} catch (java.rmi.RemoteException e) {
 					e.printStackTrace();
-				} catch(InterruptedException ee) {}
+				}
 			}
 			});
 		thread.start();
