@@ -1,10 +1,3 @@
-/*
-	Code: calculator server		CalculatorServer.java
-	Date: 10th October 2000
-
-	Server code for hosting the CalculatorImpl object
-*/
-
 
 import java.rmi.Naming;	//Import naming classes to bind to rmiregistry
 
