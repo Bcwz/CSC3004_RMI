@@ -1,5 +1,6 @@
 
 import java.rmi.Naming;	//Import naming classes to bind to rmiregistry
+import java.rmi.RemoteException;
 import java.util.ArrayList;
 
 public class SafeEntryServer {
@@ -14,9 +15,11 @@ public class SafeEntryServer {
      //following method. 
 
      try {
+    	 //For SafeEntry Normal users
     	 SafeEntryUser SEU = new SafeEntryUserimpl();
     	 Naming.rebind("rmi://localhost:" + port + "/CalculatorService", SEU);
     	 
+    	 //For SafeEntryOfficer
     	 SafeEntryOfficer SEO = new SafeEntryOfficerimpl();
     	 Naming.rebind("rmi://localhost:" + port + "/OfficerService", SEO);
 			
@@ -24,6 +27,17 @@ public class SafeEntryServer {
      catch (Exception e) {
        System.out.println("Server Error: " + e);
      }
+   }
+   
+   
+   
+   //Use to notify listener
+   private void addListener (String listener) throws RemoteException{
+	   clientListener.add(listener);
+   }
+   
+   private void removeListener (String listener) throws RemoteException{
+	   clientListener.remove(listener);
    }
    
    

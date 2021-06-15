@@ -24,7 +24,7 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Random;
 
-public class SafeEntryUserimpl extends java.rmi.server.UnicastRemoteObject implements SafeEntryUser, Serializable {
+public class SafeEntryUserimpl extends java.rmi.server.UnicastRemoteObject implements SafeEntryUser{
 
 	private RMIClientIntf c;
 
@@ -35,6 +35,50 @@ public class SafeEntryUserimpl extends java.rmi.server.UnicastRemoteObject imple
 		super();
 	}
 
+	
+	public void selfCheckIn(RMIClientIntf client, String NRIC, String Name, String location)
+			throws UnsupportedEncodingException, FileNotFoundException, IOException {
+		c = client;
+
+
+		LocalDateTime now = LocalDateTime.now();
+		DateTimeFormatter format = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss");
+		String formatDateTime = now.format(format);
+
+
+
+		Thread thread = new Thread(new Runnable() {
+
+			@Override
+			public void run() {
+				Random rg = new Random();
+				int timer = rg.nextInt(5000);
+				String s = "NAME:aaa";
+				Path p = Paths.get("C:\\Users\\Bernie\\OneDrive\\Desktop\\cloud\\projectrmi\\SafeEntry\\filename.txt");
+				try (BufferedWriter writer = Files.newBufferedWriter(p, StandardOpenOption.APPEND)) {
+				    writer.write(s);
+			
+					c.callBack("Check-in SUCCESS. NRIC : " + NRIC);
+
+				} catch (java.rmi.RemoteException e) {
+					e.printStackTrace();
+				} catch (UnsupportedEncodingException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				} catch (FileNotFoundException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				} catch (IOException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
+			}
+		});
+		thread.start();
+		return;
+	}
+	
+	
 	// Subtract the second parameter from the first and return the result
 	public void selfCheckOut(RMIClientIntf client, String NRIC) throws java.rmi.RemoteException {
 
@@ -107,45 +151,5 @@ public class SafeEntryUserimpl extends java.rmi.server.UnicastRemoteObject imple
 
 	}
 
-	public void selfCheckIn(RMIClientIntf client, String NRIC, String Name, String location)
-			throws UnsupportedEncodingException, FileNotFoundException, IOException {
-		c = client;
 
-
-		LocalDateTime now = LocalDateTime.now();
-		DateTimeFormatter format = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss");
-		String formatDateTime = now.format(format);
-
-
-
-		Thread thread = new Thread(new Runnable() {
-
-			@Override
-			public void run() {
-				Random rg = new Random();
-				int timer = rg.nextInt(5000);
-				String s = "LALALAL";
-				Path p = Paths.get("C:\\Users\\Bernie\\OneDrive\\Desktop\\cloud\\projectrmi\\SafeEntry\\filename.txt");
-				try (BufferedWriter writer = Files.newBufferedWriter(p, StandardOpenOption.APPEND)) {
-				    writer.write(s);
-			
-					c.callBack("Check-in SUCCESS. NRIC : " + NRIC);
-
-				} catch (java.rmi.RemoteException e) {
-					e.printStackTrace();
-				} catch (UnsupportedEncodingException e1) {
-					// TODO Auto-generated catch block
-					e1.printStackTrace();
-				} catch (FileNotFoundException e1) {
-					// TODO Auto-generated catch block
-					e1.printStackTrace();
-				} catch (IOException e1) {
-					// TODO Auto-generated catch block
-					e1.printStackTrace();
-				}
-			}
-		});
-		thread.start();
-
-	}
 }
