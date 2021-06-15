@@ -51,8 +51,8 @@ public class SafeEntryUserClient extends java.rmi.server.UnicastRemoteObject imp
 			SafeEntryUserClient SEC = new SafeEntryUserClient();
 
 			// Create the reference to the remote object through the remiregistry
-			SafeEntryUser SEUser = (SafeEntryUser) // Naming.lookup("rmi://localhost/CalculatorService");
-			Naming.lookup("rmi://" + reg_host + ":" + reg_port + "/CalculatorService");
+			SafeEntryUser SEUser = (SafeEntryUser) 
+			Naming.lookup("rmi://" + reg_host + ":" + reg_port + "/SafeEntryService");
 
 			int choice = 0;
 			String clientName = "", clientNRIC = "", clientLocation = "", familyMemberName = "", familyMemberNRIC = "";

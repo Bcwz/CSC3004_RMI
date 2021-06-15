@@ -19,7 +19,7 @@ public class SafeEntryServer {
 			// For SafeEntry Normal users
 
 			SafeEntryUser SEU = new SafeEntryUserimpl();
-			Naming.rebind("rmi://localhost:" + port + "/CalculatorService", SEU);
+			Naming.rebind("rmi://localhost:" + port + "/SafeEntryService", SEU);
 
 			// For SafeEntryOfficer
 			SafeEntryOfficer SEO = new SafeEntryOfficerimpl();
@@ -33,17 +33,21 @@ public class SafeEntryServer {
 	}
 
 	// Use to notify listener
-	private void addListener(String listener) throws RemoteException {
-		clientListener.add(listener);
+	private void addListener(String listenerNRIC) throws RemoteException {
+		clientListener.add(listenerNRIC);
 	}
 
-	private void removeListener(String listener) throws RemoteException {
-		clientListener.remove(listener);
+	private void removeListener(String listenerNRIC) throws RemoteException {
+		clientListener.remove(listenerNRIC);
 	}
 
 	private void notifyListener() throws RemoteException {
+		// Get the list of infected location, checkin&checkout
 		for (String element : clientListener) {
-			// Am i even able to identfy individual clients? lemme go search
+			//Compare each element in arrayList which contains the listener NRIC
+			//For each element in filename.txt,
+			//If  (filename.txt location == infectedlocation && checkin time > infectedcheckin && checkout <infectedcheckout)
+			//callback to clientListener to notify
 		}
 	}
 
