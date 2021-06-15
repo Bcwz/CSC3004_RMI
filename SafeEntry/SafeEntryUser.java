@@ -10,10 +10,10 @@ public interface SafeEntryUser extends java.rmi.Remote {
     
 
 
-    public void selfCheckIn(RMIClientIntf client) throws java.rmi.RemoteException;
+    public void selfCheckIn(RMIClientIntf client, String NRIC) throws java.rmi.RemoteException;
 
 
-    public void selfCheckOut(RMIClientIntf client) throws java.rmi.RemoteException;
+    public void selfCheckOut(RMIClientIntf client,String NRIC) throws java.rmi.RemoteException;
 
 
 

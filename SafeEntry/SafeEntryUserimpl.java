@@ -42,8 +42,7 @@ public class SafeEntryUserimpl extends java.rmi.server.UnicastRemoteObject imple
 
     // Implementation of the add method
     // The two long parameters are added added and the result is retured
-    public void selfCheckIn(RMIClientIntf client)
-        throws java.rmi.RemoteException {
+    public void selfCheckIn(RMIClientIntf client, String NRIC) throws java.rmi.RemoteException {
     	
 		    c = client;
 
@@ -55,7 +54,7 @@ public class SafeEntryUserimpl extends java.rmi.server.UnicastRemoteObject imple
 				int timer = rg.nextInt(5000);
 				try {
 					//Thread.sleep(timer);
-					c.callBack("Check-in SUCCESS");
+					c.callBack("Check-in SUCCESS. NRIC : " + NRIC);
 					
 				} catch (java.rmi.RemoteException e) {
 					e.printStackTrace();
@@ -67,7 +66,7 @@ public class SafeEntryUserimpl extends java.rmi.server.UnicastRemoteObject imple
     }
 
     // Subtract the second parameter from the first and return the result
-    public void selfCheckOut(RMIClientIntf client)
+    public void selfCheckOut(RMIClientIntf client, String NRIC)
         throws java.rmi.RemoteException {
      
 		c = client;
@@ -81,7 +80,7 @@ public class SafeEntryUserimpl extends java.rmi.server.UnicastRemoteObject imple
 				try {
 					//Thread.sleep(timer);
 					
-					c.callBack("Check-out SUCCESS");
+					c.callBack("Check-out SUCCESS. NRIC = " + NRIC);
 				} catch (java.rmi.RemoteException e) {
 					e.printStackTrace();
 				}

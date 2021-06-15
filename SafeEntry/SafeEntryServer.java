@@ -24,6 +24,7 @@ import classes.Transactions;
 import classes.Users;
 
 public class SafeEntryServer {
+	private RMIClientIntf c;
 	static int port = 1099;
    //SafeEntryServer constructor
    public SafeEntryServer() {

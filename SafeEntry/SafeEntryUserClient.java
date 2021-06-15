@@ -51,7 +51,6 @@ public class SafeEntryUserClient extends java.rmi.server.UnicastRemoteObject imp
 	
 	public static Users createNewUserDialogue() {
 		System.out.println("~~~~~~~~~~~~~~~~ Registration selected ~~~~~~~~~~~~~~~~ ");
-		cc.nextLine();
 		System.out.print("Enter Name: ");
 		String nric = "";
 		String name = cc.nextLine();
@@ -113,12 +112,30 @@ public class SafeEntryUserClient extends java.rmi.server.UnicastRemoteObject imp
 		int choice = 0;
 		String message;
 
-		System.out.print("~~~~~~~~~~~~~~~~ Starting TraceTogether ~~~~~~~~~~~~~~~~ ");
+		
         while(true) {
-        	System.out.println("\n\nSelect 1 for registration\nSelect 2 for login\nSelect 3 to exit\n");
+        	System.out.print("~~~~~~~~~~~~~~~~ Starting TraceTogether ~~~~~~~~~~~~~~~~ ");
+        	System.out.println("\n\nSelect 1 for Check-in\nSelect 2 for Check-out\nSelect 3 to exit\n");
 			choice = cc.nextInt();
-			SEUser.selfCheckIn(SEC);
-			SEUser.selfCheckOut(SEC);
+			switch(choice){			
+			case 1:
+				SEUser.selfCheckIn(SEC, "S1234567G");
+				break;
+				
+			case 2:
+				SEUser.selfCheckOut(SEC,"S2222222G");
+				break;
+				
+			default:
+				break;
+			}
+			
+			
+			
+			
+			/*
+			 * SEUser.selfCheckIn(SEC); SEUser.selfCheckOut(SEC);
+			 */
         }
 	}
 
