@@ -1,9 +1,15 @@
+import java.io.File;
+import java.io.IOException;
 import java.net.MalformedURLException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.rmi.Naming;
 import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
+import java.util.Scanner;
 
 public class SafeEntryOfficerClient extends java.rmi.server.UnicastRemoteObject implements RMIClientIntf{
+	final static Scanner cc = new Scanner(System.in);
 
 	public SafeEntryOfficerClient() throws RemoteException {
 
@@ -37,6 +43,28 @@ public class SafeEntryOfficerClient extends java.rmi.server.UnicastRemoteObject 
 			SafeEntryOfficer SEOfficer = (SafeEntryOfficer) // Naming.lookup("rmi://localhost/CalculatorService");
 			Naming.lookup("rmi://" + reg_host + ":" + reg_port + "/OfficerService");
 			System.out.println("OFFICER CLIENT SUCCESS");
+			
+			System.out.println("Press 1 to see database");
+			int choice = cc.nextInt();
+			switch(choice) {
+			case 1:
+				Path fileName = Path.of("C:\\Users\\Bernie\\OneDrive\\Desktop\\cloud\\projectrmi\\SafeEntry\\filename.txt");
+				try {
+					String actual = Files.readString(fileName);
+					System.out.println(actual);
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+				
+				break;
+			case 2:
+				System.out.println("case 2");
+				break;
+
+			default:
+				break;
+			}
 			
 		}
 		

@@ -42,7 +42,6 @@ public class SafeEntryServer {
    
    
    
-   
 
    public static void main(String args[]) {
      	//Create the new Calculator server
