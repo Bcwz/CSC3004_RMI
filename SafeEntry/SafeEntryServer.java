@@ -4,7 +4,7 @@ import java.rmi.RemoteException;
 import java.util.ArrayList;
 
 public class SafeEntryServer {
-	private ArrayList<String> clientListener = new ArrayList();
+	private ArrayList<String> clientListener = new ArrayList<String>();
 	private RMIClientIntf c;
 	static int port = 1099;
 
@@ -39,6 +39,12 @@ public class SafeEntryServer {
 
 	private void removeListener(String listener) throws RemoteException {
 		clientListener.remove(listener);
+	}
+
+	private void notifyListener() throws RemoteException {
+		for (String element : clientListener) {
+			// Am i even able to identfy individual clients? lemme go search
+		}
 	}
 
 	public static void main(String args[]) {

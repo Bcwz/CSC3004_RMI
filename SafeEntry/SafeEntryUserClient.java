@@ -14,8 +14,10 @@ import java.net.MalformedURLException; //Import the MalformedURLException class 
 import java.rmi.Naming; //Import the rmi naming - so you can lookup remote object
 import java.rmi.NotBoundException; //Import the NotBoundException class so you can catch it
 import java.rmi.RemoteException; //Import the RemoteException class so you can catch it
+import java.util.ArrayList;
 import java.util.Scanner;
 
+import classes.FamilyMembers;
 import classes.Transactions;
 import classes.Users;
 
@@ -23,15 +25,13 @@ public class SafeEntryUserClient extends java.rmi.server.UnicastRemoteObject imp
 
 	final static Scanner cc = new Scanner(System.in);
 	final static String nricRegex = "^[STFG]\\d{7}[A-Z]$";
-	final static String dateTimeRegex = "^(3[01]|[12][0-9]|0[1-9])/(1[0-2]|0[1-9])/[0-9]{4} (2[0-3]|[01]?[0-9]):([0-5]?[0-9]):([0-5]?[0-9])$";
 
 	public SafeEntryUserClient() throws RemoteException {
 
 	}
 
 	public void callBack(String s) throws java.rmi.RemoteException {
-
-		System.out.println("callback:" + s);
+		System.out.println("\nServer callback message: " + s + "\n");
 	}
 
 	public static void main(String[] args) throws UnsupportedEncodingException, FileNotFoundException, IOException {
@@ -54,13 +54,18 @@ public class SafeEntryUserClient extends java.rmi.server.UnicastRemoteObject imp
 			SafeEntryUser SEUser = (SafeEntryUser) // Naming.lookup("rmi://localhost/CalculatorService");
 			Naming.lookup("rmi://" + reg_host + ":" + reg_port + "/CalculatorService");
 
-			boolean logout = false;
 			int choice = 0;
-			String message, name, nric, location;
+			String clientName = "", clientNRIC = "", clientLocation = "", familyMemberName = "", familyMemberNRIC = "";
 			Transactions transactionObject = new Transactions();
+			FamilyMembers FamilyMemberObject = new FamilyMembers();
+			ArrayList<FamilyMembers> familyMembersList = new ArrayList<FamilyMembers>();
+			ArrayList<Transactions> familyTransactionList = new ArrayList<Transactions>();
+			ArrayList<Transactions> clientTransactionList = new ArrayList<Transactions>();
+
+			System.out.println("~~~~~~~~~~~~~~~~ Starting TraceTogether ~~~~~~~~~~~~~~~~ ");
 
 			while (true) {
-				System.out.println("~~~~~~~~~~~~~~~~ Starting TraceTogether ~~~~~~~~~~~~~~~~ ");
+
 				System.out.println(
 						"\n\nEnter 1 for Self Check-in\nEnter 2 for Self Check-out\nEnter 3 for Group Check-in\nEnter 4 for Group Check-out\nEnter 5 to view history\nEnter 6 to view possible exposure\nEnter 7 to add new family member\nEnter 8 to delete existing family member\nEnter 9 to exit");
 				choice = cc.nextInt();
@@ -69,16 +74,16 @@ public class SafeEntryUserClient extends java.rmi.server.UnicastRemoteObject imp
 					System.out.println("\nSelf Check-in selected!\n");
 					cc.nextLine();
 					System.out.print("\nEnter name: ");
-					name = cc.nextLine();
-					nric = "";
-					while (!nric.matches(nricRegex)) {
+					clientName = cc.nextLine();
+					clientNRIC = "";
+					while (!clientNRIC.matches(nricRegex)) {
 						System.out.print("Enter NRIC: ");
-						nric = cc.nextLine();
+						clientNRIC = cc.nextLine();
 					}
-					System.out.print("\nEnter location: ");
-					location = cc.nextLine();
+					System.out.print("Enter location: ");
+					clientLocation = cc.nextLine();
 
-					transactionObject = new Transactions(name, nric, location);
+					transactionObject = new Transactions(clientName, clientNRIC, clientLocation);
 
 					SEUser.selfCheckIn(SEC, transactionObject);
 
@@ -88,34 +93,110 @@ public class SafeEntryUserClient extends java.rmi.server.UnicastRemoteObject imp
 					System.out.println("\nSelf Check-out selected!\n");
 					cc.nextLine();
 					System.out.print("\nEnter name: ");
-					name = cc.nextLine();
-					nric = "";
-					while (!nric.matches(nricRegex)) {
+					clientName = cc.nextLine();
+					clientNRIC = "";
+					while (!clientNRIC.matches(nricRegex)) {
 						System.out.print("Enter NRIC: ");
-						nric = cc.nextLine();
+						clientNRIC = cc.nextLine();
 					}
-					System.out.print("\nEnter location: ");
-					location = cc.nextLine();
+					System.out.print("Enter location: ");
+					clientLocation = cc.nextLine();
 
-					transactionObject = new Transactions(name, nric, location);
+					transactionObject = new Transactions(clientName, clientNRIC, clientLocation);
 
 					SEUser.selfCheckOut(SEC, transactionObject);
 
 					break;
 
 				case 3:
-					SEUser.groupCheckIn(SEC, "S555555G");
+					System.out.println("\nGroup Check-out selected!\n");
+
+					if (familyMembersList.isEmpty()) {
+						System.out.println("No family member found. Please add one family member.");
+					} else {
+						familyTransactionList.removeAll(familyTransactionList);
+						for (int counter = 0; counter < familyMembersList.size(); counter++) {
+							familyTransactionList.add(new Transactions(familyMembersList.get(counter).getName(),
+									familyMembersList.get(counter).getNric(), "Compass One"));
+						}
+
+					}
+
+					SEUser.groupCheckIn(SEC, familyTransactionList);
+					break;
 
 				case 4:
-					SEUser.groupCheckOut(SEC, "S9999999G");
+					SEUser.groupCheckOut(SEC, familyTransactionList);
+					break;
+
+				case 5:
+
+					System.out.println("\nView history selected!\n");
+					SEUser.viewHistory(SEC, new Users(clientName, clientNRIC));
+
+					break;
+
+				case 6://
+
+//					System.out.println("\nView possible exposure selected!\n");
+//					message = userController.notifyUser(loginUser, TransactionsCollection,
+//							infectedLocationsCollection);
+//					if (message.equals("")) {
+//						System.out.print("No possible exposures.\n");
+//					} else {
+//						System.out.println("\n------------- Possible exposure -------------\n" + message);
+//					}
+					break;
+
+				case 7:
+					// add family members to the arraylist of family members
+					// does not need any invocation of methods, store as local variable
+					cc.nextLine();
+					familyMemberNRIC = "";
+					System.out.print("\nAdd new family member\nEnter name: ");
+					familyMemberName = cc.nextLine();
+
+					while (!familyMemberNRIC.matches(nricRegex)) {
+						System.out.print("Enter NRIC: ");
+						familyMemberNRIC = cc.nextLine();
+					}
+					FamilyMemberObject = new FamilyMembers(familyMemberName, familyMemberNRIC, clientName);
+
+					if (familyMembersList.contains(FamilyMemberObject)) {
+						System.out.println("Record exist, please try again.");
+					} else {
+						familyMembersList.add(FamilyMemberObject);
+						System.out.println("Family member added sucessfully");
+					}
+					break;
+				case 8:
+					System.out.println("\nDelete family member selected");
+
+					if (familyMembersList.isEmpty()) {
+						System.out.println("No family member found!");
+					} else {
+						for (int counter = 0; counter < familyMembersList.size(); counter++) {
+							System.out.println("\n----------------Record " + (counter + 1) + "------------------");
+							System.out.println("Name: " + familyMembersList.get(counter).getName());
+							System.out.println("NRIC: " + familyMembersList.get(counter).getNric());
+						}
+						System.out.print("Select record to delete: ");
+						int record = cc.nextInt();
+
+						familyMembersList.remove(record - 1);
+						System.out.println("Family member deleted sucessfully");
+					}
+					break;
+
+				case 9:
+					System.out.println("Exiting");
+					System.exit(0);
 
 				default:
-					break;
+					System.out.println("Invalid choice");
 				}
 
-				/*
-				 * SEUser.selfCheckIn(SEC); SEUser.selfCheckOut(SEC);
-				 */
+		
 			}
 		}
 

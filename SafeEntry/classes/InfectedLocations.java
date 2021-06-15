@@ -21,7 +21,6 @@ public class InfectedLocations implements Serializable {
 	public InfectedLocations() {
 	}
 
-
 	public String getLocation() {
 		return location;
 	}

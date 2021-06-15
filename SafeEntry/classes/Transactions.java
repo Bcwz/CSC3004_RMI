@@ -10,7 +10,6 @@ import java.io.Serializable;
 
 public class Transactions implements Serializable {
 
-
 	private String name, nric, location, type, checkInTime, checkOutTime;
 
 	public Transactions(String name, String nric, String location) {

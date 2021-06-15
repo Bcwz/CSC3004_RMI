@@ -7,8 +7,10 @@
 
 // The implementation Class must implement the rmi interface (calculator)
 // and be set as a Remote object on a server
+import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.FileNotFoundException;
+import java.io.FileReader;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.nio.charset.Charset;
@@ -20,9 +22,12 @@ import java.nio.file.StandardOpenOption;
 import java.rmi.RemoteException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.Random;
+import java.util.Scanner;
 
 import classes.Transactions;
+import classes.Users;
 
 public class SafeEntryUserimpl extends java.rmi.server.UnicastRemoteObject implements SafeEntryUser {
 
@@ -101,7 +106,7 @@ public class SafeEntryUserimpl extends java.rmi.server.UnicastRemoteObject imple
 						+ checkOutTransaction.getName() + "; Check-in Type: " + checkOutTransaction.getType()
 						+ "; Location: " + checkOutTransaction.getLocation() + "; Check-out time: null";
 
-				String content ="";
+				String content = "";
 				try {
 					content = new String(Files.readAllBytes(p), charset);
 				} catch (IOException e2) {
@@ -152,7 +157,8 @@ public class SafeEntryUserimpl extends java.rmi.server.UnicastRemoteObject imple
 	}
 
 	@Override
-	public void groupCheckIn(RMIClientIntf client, String NRIC) throws RemoteException {
+	public void groupCheckIn(RMIClientIntf client, ArrayList<Transactions> checkInTransactionList)
+			throws RemoteException {
 		c = client;
 
 		Thread thread = new Thread(new Runnable() {
@@ -162,9 +168,39 @@ public class SafeEntryUserimpl extends java.rmi.server.UnicastRemoteObject imple
 				Random rg = new Random();
 				int timer = rg.nextInt(5000);
 				try {
-					// Thread.sleep(timer);
+					for (int counter = 0; counter < checkInTransactionList.size(); counter++) {
 
-					c.callBack("Group Check-in SUCCESS. NRIC = " + NRIC);
+						// Set the Transactions Object Type and CheckInTime
+						checkInTransactionList.get(counter).setType("Group check-in");
+						LocalDateTime now = LocalDateTime.now();
+						DateTimeFormatter format = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss");
+						String formatDateTime = now.format(format);
+						checkInTransactionList.get(counter).setCheckInTime(formatDateTime);
+						checkInTransactionList.get(counter).setCheckOutTime(null);
+
+						String recordBuilder = "NRIC: " + checkInTransactionList.get(counter).getNric() + "; Name: "
+								+ checkInTransactionList.get(counter).getName() + "; Check-in Type: "
+								+ checkInTransactionList.get(counter).getType() + "; Location: "
+								+ checkInTransactionList.get(counter).getLocation() + "; Check-out time: "
+								+ checkInTransactionList.get(counter).getCheckOutTime() + "; Check-in time: "
+								+ checkInTransactionList.get(counter).getCheckInTime() + "\n";
+						Path p = Paths.get(
+								"C:\\Users\\Bernie\\OneDrive\\Desktop\\cloud\\projectrmi\\SafeEntry\\filename.txt");
+
+						try (BufferedWriter writer = Files.newBufferedWriter(p, StandardOpenOption.APPEND)) {
+							writer.write(recordBuilder);
+
+							c.callBack("Check-in SUCCESS for family member. NRIC : "
+									+ checkInTransactionList.get(counter).getNric());
+
+						} catch (IOException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						}
+
+					}
+
+					c.callBack("Group Check-in for all members SUCCESS.");
 				} catch (java.rmi.RemoteException e) {
 					e.printStackTrace();
 				}
@@ -176,7 +212,8 @@ public class SafeEntryUserimpl extends java.rmi.server.UnicastRemoteObject imple
 	}
 
 	@Override
-	public void groupCheckOut(RMIClientIntf client, String NRIC) throws RemoteException {
+	public void groupCheckOut(RMIClientIntf client, ArrayList<Transactions> checkOutTransaction)
+			throws RemoteException {
 		c = client;
 
 		Thread thread = new Thread(new Runnable() {
@@ -186,9 +223,69 @@ public class SafeEntryUserimpl extends java.rmi.server.UnicastRemoteObject imple
 				Random rg = new Random();
 				int timer = rg.nextInt(5000);
 				try {
-					// Thread.sleep(timer);
+					for (int counter = 0; counter < checkOutTransaction.size(); counter++) {
 
-					c.callBack("Group Check-out SUCCESS. NRIC = " + NRIC);
+						// Set the Transactions Object Type and CheckInTime
+						checkOutTransaction.get(counter).setType("Group check-in");
+
+						Path p = Paths.get(
+								"C:\\Users\\Bernie\\OneDrive\\Desktop\\cloud\\projectrmi\\SafeEntry\\filename.txt");
+						Charset charset = StandardCharsets.UTF_8;
+
+						String checkinRecord = "NRIC: " + checkOutTransaction.get(counter).getNric() + "; Name: "
+								+ checkOutTransaction.get(counter).getName() + "; Check-in Type: "
+								+ checkOutTransaction.get(counter).getType() + "; Location: "
+								+ checkOutTransaction.get(counter).getLocation() + "; Check-out time: null;";
+
+						String content = "";
+						try {
+							content = new String(Files.readAllBytes(p), charset);
+						} catch (IOException e2) {
+							// TODO Auto-generated catch block
+							e2.printStackTrace();
+						}
+
+						if (content.contains(checkinRecord)) {
+							LocalDateTime now = LocalDateTime.now();
+							DateTimeFormatter format = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss");
+							String formatDateTime = now.format(format);
+							checkOutTransaction.get(counter).setCheckOutTime(formatDateTime);
+
+							String recordBuilder = "NRIC: " + checkOutTransaction.get(counter).getNric() + "; Name: "
+									+ checkOutTransaction.get(counter).getName() + "; Check-in Type: "
+									+ checkOutTransaction.get(counter).getType() + "; Location: "
+									+ checkOutTransaction.get(counter).getLocation() + "; Check-out time: "
+									+ checkOutTransaction.get(counter).getCheckOutTime();
+							content = content.replaceAll(checkinRecord, recordBuilder);
+							try {
+								Files.write(p, content.getBytes(charset));
+								c.callBack("Check-out SUCCESS. NRIC : " + checkOutTransaction.get(counter).getNric());
+							} catch (java.rmi.RemoteException e) {
+								e.printStackTrace();
+							} catch (UnsupportedEncodingException e1) {
+								// TODO Auto-generated catch block
+								e1.printStackTrace();
+							} catch (FileNotFoundException e1) {
+								// TODO Auto-generated catch block
+								e1.printStackTrace();
+							} catch (IOException e1) {
+								// TODO Auto-generated catch block
+								e1.printStackTrace();
+							}
+
+						} else {
+							try {
+								c.callBack("Check-out FAILED. NRIC : " + checkOutTransaction.get(counter).getNric()
+										+ ". Please try again.");
+							} catch (RemoteException e) {
+								// TODO Auto-generated catch block
+								e.printStackTrace();
+							}
+						}
+
+					}
+
+					c.callBack("Group Check-out SUCCESS. NRIC = ");
 				} catch (java.rmi.RemoteException e) {
 					e.printStackTrace();
 				}
@@ -197,6 +294,78 @@ public class SafeEntryUserimpl extends java.rmi.server.UnicastRemoteObject imple
 		thread.start();
 		return;
 
+	}
+
+	@Override
+	public String viewHistory(RMIClientIntf client, Users userToFind) throws RemoteException {
+		// TODO Auto-generated method stub
+		c = client;
+
+		Thread thread = new Thread(new Runnable() {
+
+			public void run() {
+				Random rg = new Random();
+				int timer = rg.nextInt(5000);
+				boolean inside = false;
+
+				String p = "C:\\Users\\Bernie\\OneDrive\\Desktop\\cloud\\projectrmi\\SafeEntry\\filename.txt";
+
+				BufferedReader bufReader = null;
+				try {
+					bufReader = new BufferedReader(new FileReader(p));
+				} catch (FileNotFoundException e2) {
+					// TODO Auto-generated catch block
+					e2.printStackTrace();
+				}
+				ArrayList<String> listOfLines = new ArrayList<>();
+				String line = null;
+				try {
+					line = bufReader.readLine();
+				} catch (IOException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
+				while (line != null) {
+					listOfLines.add(line);
+					try {
+						line = bufReader.readLine();
+					} catch (IOException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+				}
+				try {
+					bufReader.close();
+				} catch (IOException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
+				String recordsToFind = "NRIC: " + userToFind.getNric() + "; Name: " + userToFind.getName() + ";";
+				for (int i = 0; i < listOfLines.size(); i++) {
+					if (listOfLines.get(i).contains(recordsToFind)) {
+						inside = true;
+						try {
+							c.callBack(listOfLines.get(i));
+						} catch (RemoteException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						}
+					}
+				}
+
+				if (!inside) {
+					try {
+						c.callBack("No records found. Please try again.");
+					} catch (RemoteException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+				}
+
+			}
+		});
+		thread.start();
+		return null;
 	}
 
 }
