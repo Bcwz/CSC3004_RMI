@@ -15,6 +15,10 @@ import java.io.OutputStreamWriter;
 import java.io.Serializable;
 import java.io.UnsupportedEncodingException;
 import java.io.Writer;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardOpenOption;
 import java.rmi.RemoteException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -120,12 +124,11 @@ public class SafeEntryUserimpl extends java.rmi.server.UnicastRemoteObject imple
 			public void run() {
 				Random rg = new Random();
 				int timer = rg.nextInt(5000);
-				try (Writer writer = new BufferedWriter(
-						new OutputStreamWriter(new FileOutputStream("filename.txt"), "utf-8"))) {
-					writer.append("Name: " + Name + "\t NRIC: " + NRIC + "\t Location: " + location + "\t Check-in time: "
-							+ formatDateTime);
-					
-
+				String s = "LALALAL";
+				Path p = Paths.get("C:\\Users\\Bernie\\OneDrive\\Desktop\\cloud\\projectrmi\\SafeEntry\\filename.txt");
+				try (BufferedWriter writer = Files.newBufferedWriter(p, StandardOpenOption.APPEND)) {
+				    writer.write(s);
+			
 					c.callBack("Check-in SUCCESS. NRIC : " + NRIC);
 
 				} catch (java.rmi.RemoteException e) {

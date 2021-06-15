@@ -17,8 +17,8 @@ public class SafeEntryServer {
     	 SafeEntryUser SEU = new SafeEntryUserimpl();
     	 Naming.rebind("rmi://localhost:" + port + "/CalculatorService", SEU);
     	 
-    	
-
+    	 SafeEntryOfficer SEO = new SafeEntryOfficerimpl();
+    	 Naming.rebind("rmi://localhost:" + port + "/OfficerService", SEO);
 			
      } 
      catch (Exception e) {
