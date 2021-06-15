@@ -1,7 +1,5 @@
 package classes;
 
-import org.bson.types.ObjectId;
-
 /**
  * Represents Family Members of an User. Each object contains id(ObjectId),
  * name(String), NRIC(String), relatedTo(String)
@@ -9,7 +7,6 @@ import org.bson.types.ObjectId;
 
 public class FamilyMembers {
 
-	private ObjectId id;
 	private String name, nric, relatedTo;
 
 	public FamilyMembers(String name, String nric, String relatedTo) {
@@ -19,14 +16,6 @@ public class FamilyMembers {
 	}
 
 	public FamilyMembers() {
-	}
-
-	public ObjectId getId() {
-		return id;
-	}
-
-	public void setId(ObjectId id) {
-		this.id = id;
 	}
 
 	public String getName() {

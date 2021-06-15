@@ -1,7 +1,5 @@
 package classes;
 
-import org.bson.types.ObjectId;
-
 /**
  * Represents the Users of the TraceTogether application. Each object contains
  * id(ObjectId), name(String), NRIC(String), userType(String), password(String),
@@ -9,7 +7,7 @@ import org.bson.types.ObjectId;
  */
 public class Users {
 
-	private ObjectId id;
+
 	private String name, nric, userType, password, healthStatus;
 
 	/**
@@ -52,13 +50,6 @@ public class Users {
 	public Users() {
 	}
 
-	public ObjectId getId() {
-		return id;
-	}
-
-	public void setId(ObjectId id) {
-		this.id = id;
-	}
 
 	public String getName() {
 		return name;

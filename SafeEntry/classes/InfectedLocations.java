@@ -1,7 +1,5 @@
 package classes;
 
-import org.bson.types.ObjectId;
-
 /**
  * Represents the Infected Locations visit by a COVID-19 patient. Each object
  * contains id(ObjectId), location(String), checkInTime(String) of COVID-19
@@ -9,7 +7,7 @@ import org.bson.types.ObjectId;
  */
 
 public class InfectedLocations {
-	private ObjectId id;
+
 	private String location, checkInTime, checkOutTime;
 
 	public InfectedLocations(String location, String checkInTime, String checkOutTime) {
@@ -21,13 +19,6 @@ public class InfectedLocations {
 	public InfectedLocations() {
 	}
 
-	public ObjectId getId() {
-		return id;
-	}
-
-	public void setId(ObjectId id) {
-		this.id = id;
-	}
 
 	public String getLocation() {
 		return location;

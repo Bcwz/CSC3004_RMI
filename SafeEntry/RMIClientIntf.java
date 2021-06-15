@@ -1,4 +1,4 @@
-import java.rmi.*;
+import java.rmi.Remote;
 	
 public interface RMIClientIntf extends Remote {
 

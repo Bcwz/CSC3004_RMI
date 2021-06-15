@@ -7,48 +7,32 @@
 
 */
 
-import java.rmi.Naming;			//Import the rmi naming - so you can lookup remote object
-import java.rmi.RemoteException;	//Import the RemoteException class so you can catch it
-import java.net.MalformedURLException;	//Import the MalformedURLException class so you can catch it
-import java.rmi.NotBoundException;	//Import the NotBoundException class so you can catch it
-
-import static org.bson.codecs.configuration.CodecRegistries.fromProviders;
-import static org.bson.codecs.configuration.CodecRegistries.fromRegistries;
-
-import java.util.ArrayList;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.net.MalformedURLException; //Import the MalformedURLException class so you can catch it
+import java.rmi.Naming; //Import the rmi naming - so you can lookup remote object
+import java.rmi.NotBoundException; //Import the NotBoundException class so you can catch it
+import java.rmi.RemoteException; //Import the RemoteException class so you can catch it
 import java.util.Scanner;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
-import org.bson.codecs.configuration.CodecRegistry;
-import org.bson.codecs.pojo.PojoCodecProvider;
-
-import com.mongodb.ConnectionString;
-import com.mongodb.MongoClientSettings;
-import com.mongodb.client.MongoClients;
-import com.mongodb.client.MongoCollection;
-import com.mongodb.client.MongoDatabase;
-
-import classes.FamilyMembers;
-import classes.InfectedLocations;
-import classes.Transactions;
 import classes.Users;
 
 public class SafeEntryUserClient extends java.rmi.server.UnicastRemoteObject implements RMIClientIntf {
-	
+
 	final static Scanner cc = new Scanner(System.in);
 	final static String nricRegex = "^[STFG]\\d{7}[A-Z]$";
 	final static String dateTimeRegex = "^(3[01]|[12][0-9]|0[1-9])/(1[0-2]|0[1-9])/[0-9]{4} (2[0-3]|[01]?[0-9]):([0-5]?[0-9]):([0-5]?[0-9])$";
 
-	public SafeEntryUserClient() throws RemoteException{
-		
+	public SafeEntryUserClient() throws RemoteException {
+
 	}
-	
+
 	public void callBack(String s) throws java.rmi.RemoteException {
-	
+
 		System.out.println("callback:" + s);
 	}
-	
+
 	public static Users createNewUserDialogue() {
 		System.out.println("~~~~~~~~~~~~~~~~ Registration selected ~~~~~~~~~~~~~~~~ ");
 		System.out.print("Enter Name: ");
@@ -81,84 +65,84 @@ public class SafeEntryUserClient extends java.rmi.server.UnicastRemoteObject imp
 		String password = cc.nextLine();
 		Users loginUser = new Users(nric, password);
 		return loginUser;
-	}	
-	
-    public static void main(String[] args) {
-        
-       String reg_host = "localhost";
-       int reg_port = 1099;
-       
-       if (args.length == 1) {
-       	reg_port = Integer.parseInt(args[0]);
-      } else if (args.length == 2) {
-      	reg_host = args[0];
-      	reg_port = Integer.parseInt(args[1]);
-      }
-        
-	try {
-
-		SafeEntryUserClient SEC = new SafeEntryUserClient();
-		
-	    // Create the reference to the remote object through the remiregistry			
-        SafeEntryUser SEUser = (SafeEntryUser)//Naming.lookup("rmi://localhost/CalculatorService");
-        Naming.lookup("rmi://" + reg_host + ":" + reg_port + "/CalculatorService");
-            
-		/*
-		 *  Now use the reference c to call remote methods
-		 *  SEU.selfCheckIn(SEC);
-		 *  SEU.selfCheckOut(SEC);
-		 */
-        boolean logout = false;
-		int choice = 0;
-		String message;
-
-		
-        while(true) {
-        	System.out.print("~~~~~~~~~~~~~~~~ Starting TraceTogether ~~~~~~~~~~~~~~~~ ");
-        	System.out.println("\n\nSelect 1 for Check-in\nSelect 2 for Check-out\nSelect 3 to exit\n");
-			choice = cc.nextInt();
-			switch(choice){			
-			case 1:
-				SEUser.selfCheckIn(SEC, "S1234567G");
-				break;
-				
-			case 2:
-				SEUser.selfCheckOut(SEC,"S2222222G");
-				break;
-				
-			default:
-				break;
-			}
-			
-			
-			
-			
-			/*
-			 * SEUser.selfCheckIn(SEC); SEUser.selfCheckOut(SEC);
-			 */
-        }
 	}
 
-	catch (MalformedURLException murle) {
-            System.out.println();
-            System.out.println("MalformedURLException");
-            System.out.println(murle);
-        }
-        catch (RemoteException re) {
-            System.out.println();
-            System.out.println("RemoteException");
-            System.out.println(re);
-        }
-        catch (NotBoundException nbe) {
-            System.out.println();
-            System.out.println("NotBoundException");
-            System.out.println(nbe);
-        }
-        catch (java.lang.ArithmeticException ae) {
-            System.out.println();
-            System.out.println("java.lang.ArithmeticException");
-            System.out.println(ae);
-        }
-    }
-}
+	public static void main(String[] args) throws UnsupportedEncodingException, FileNotFoundException, IOException {
 
+		String reg_host = "localhost";
+		int reg_port = 1099;
+
+		if (args.length == 1) {
+			reg_port = Integer.parseInt(args[0]);
+		} else if (args.length == 2) {
+			reg_host = args[0];
+			reg_port = Integer.parseInt(args[1]);
+		}
+
+		try {
+
+			SafeEntryUserClient SEC = new SafeEntryUserClient();
+
+			// Create the reference to the remote object through the remiregistry
+			SafeEntryUser SEUser = (SafeEntryUser) // Naming.lookup("rmi://localhost/CalculatorService");
+			Naming.lookup("rmi://" + reg_host + ":" + reg_port + "/CalculatorService");
+			
+			boolean logout = false;
+			int choice = 0;
+			String message;
+
+			while (true) {
+				System.out.println("~~~~~~~~~~~~~~~~ Starting TraceTogether ~~~~~~~~~~~~~~~~ ");
+				System.out.println("\n\nSelect 1 for Check-in\nSelect 2 for Check-out\nSelect 3 to exit\n");
+				choice = cc.nextInt();
+				switch (choice) {
+				case 1:
+				
+					String name = "Gideon";
+					String nric = "S454654F";
+					String location = "NYP SIT";
+
+					SEUser.selfCheckIn(SEC,nric,name, location);
+
+					
+					break;
+
+				case 2:
+					SEUser.selfCheckOut(SEC, "S2222222G");
+					break;
+
+				case 3:
+					SEUser.groupCheckIn(SEC, "S555555G");
+
+				case 4:
+					SEUser.groupCheckOut(SEC, "S9999999G");
+
+				default:
+					break;
+				}
+
+				/*
+				 * SEUser.selfCheckIn(SEC); SEUser.selfCheckOut(SEC);
+				 */
+			}
+		}
+
+		catch (MalformedURLException murle) {
+			System.out.println();
+			System.out.println("MalformedURLException");
+			System.out.println(murle);
+		} catch (RemoteException re) {
+			System.out.println();
+			System.out.println("RemoteException");
+			System.out.println(re);
+		} catch (NotBoundException nbe) {
+			System.out.println();
+			System.out.println("NotBoundException");
+			System.out.println(nbe);
+		} catch (java.lang.ArithmeticException ae) {
+			System.out.println();
+			System.out.println("java.lang.ArithmeticException");
+			System.out.println(ae);
+		}
+	}
+}

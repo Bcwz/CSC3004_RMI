@@ -1,7 +1,5 @@
 package classes;
 
-import org.bson.types.ObjectId;
-
 /**
  * Represents the check-in/check-out Transaction Records of User. Each object
  * contains id(ObjectId), name(String), NRIC(String), location(String),
@@ -10,7 +8,7 @@ import org.bson.types.ObjectId;
 
 public class Transactions {
 
-	private ObjectId id;
+
 	private String name, nric, location, type, checkInTime, checkOutTime;
 
 	public Transactions(String name, String nric, String location) {
@@ -61,14 +59,6 @@ public class Transactions {
 
 	public void setCheckOutTime(String checkOutTime) {
 		this.checkOutTime = checkOutTime;
-	}
-
-	public ObjectId getId() {
-		return id;
-	}
-
-	public void setId(ObjectId id) {
-		this.id = id;
 	}
 
 	public String getType() {
