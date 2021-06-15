@@ -51,14 +51,14 @@ public class SafeEntryOfficerClient extends java.rmi.server.UnicastRemoteObject 
 				int choice = cc.nextInt();
 				switch(choice) {
 				case 1:
-					Path fileName = Path.of("C:\\Users\\Bernie\\OneDrive\\Desktop\\cloud\\projectrmi\\SafeEntry\\filename.txt");
-					try {
-						String actual = Files.readString(fileName);
-						System.out.println(actual);
-					} catch (IOException e) {
-						e.printStackTrace();
-					}
-					
+					/*
+					 * Path fileName = Path.of(
+					 * "C:\\Users\\Bernie\\OneDrive\\Desktop\\cloud\\projectrmi\\SafeEntry\\filename.txt"
+					 * ); try { String actual = Files.readString(fileName);
+					 * System.out.println(actual); } catch (IOException e) { e.printStackTrace(); }
+					 * 
+					 * break;
+					 */
 					break;
 				case 2:
 					System.out.println("Adding new infected location");

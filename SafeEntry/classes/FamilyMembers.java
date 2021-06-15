@@ -1,11 +1,13 @@
 package classes;
 
+import java.io.Serializable;
+
 /**
  * Represents Family Members of an User. Each object contains id(ObjectId),
  * name(String), NRIC(String), relatedTo(String)
  */
 
-public class FamilyMembers {
+public class FamilyMembers implements Serializable {
 
 	private String name, nric, relatedTo;
 

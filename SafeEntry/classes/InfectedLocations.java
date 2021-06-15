@@ -1,12 +1,14 @@
 package classes;
 
+import java.io.Serializable;
+
 /**
  * Represents the Infected Locations visit by a COVID-19 patient. Each object
  * contains id(ObjectId), location(String), checkInTime(String) of COVID-19
  * patient, checkOutTime(String) of COVID-19 patient
  */
 
-public class InfectedLocations {
+public class InfectedLocations implements Serializable {
 
 	private String location, checkInTime, checkOutTime;
 

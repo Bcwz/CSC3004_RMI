@@ -52,6 +52,26 @@ public class SafeEntryOfficerimpl extends java.rmi.server.UnicastRemoteObject im
 		thread.start();
 		return;
 	}
+	//carry on
 	
+	/*
+	 * public void notifyListener() { System.out.println("NOTIFY AFFECTED USERS");
+	 * 
+	 * 
+	 * Thread thread = new Thread(new Runnable() {
+	 * 
+	 * @Override public void run() {
+	 * 
+	 * try ()
+	 * 
+	 * 
+	 * 
+	 * } catch (java.rmi.RemoteException e) { e.printStackTrace(); } catch
+	 * (UnsupportedEncodingException e1) { // TODO Auto-generated catch block
+	 * e1.printStackTrace(); } catch (FileNotFoundException e1) { // TODO
+	 * Auto-generated catch block e1.printStackTrace(); } catch (IOException e1) {
+	 * // TODO Auto-generated catch block e1.printStackTrace(); } } });
+	 * thread.start(); return; }
+	 */
 
 }

@@ -1,12 +1,14 @@
 package classes;
 
+import java.io.Serializable;
+
 /**
  * Represents the check-in/check-out Transaction Records of User. Each object
  * contains id(ObjectId), name(String), NRIC(String), location(String),
  * checkInTime(String) of User, checkOutTime(String) of User.
  */
 
-public class Transactions {
+public class Transactions implements Serializable {
 
 
 	private String name, nric, location, type, checkInTime, checkOutTime;

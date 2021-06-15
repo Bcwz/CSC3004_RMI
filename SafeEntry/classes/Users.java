@@ -1,11 +1,13 @@
 package classes;
 
+import java.io.Serializable;
+
 /**
  * Represents the Users of the TraceTogether application. Each object contains
  * id(ObjectId), name(String), NRIC(String), userType(String), password(String),
  * healthStatus(String) of User.
  */
-public class Users {
+public class Users implements Serializable {
 
 
 	private String name, nric, userType, password, healthStatus;

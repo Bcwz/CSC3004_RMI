@@ -16,6 +16,7 @@ import java.rmi.NotBoundException; //Import the NotBoundException class so you c
 import java.rmi.RemoteException; //Import the RemoteException class so you can catch it
 import java.util.Scanner;
 
+import classes.Transactions;
 import classes.Users;
 
 public class SafeEntryUserClient extends java.rmi.server.UnicastRemoteObject implements RMIClientIntf {
@@ -31,40 +32,6 @@ public class SafeEntryUserClient extends java.rmi.server.UnicastRemoteObject imp
 	public void callBack(String s) throws java.rmi.RemoteException {
 
 		System.out.println("callback:" + s);
-	}
-
-	public static Users createNewUserDialogue() {
-		System.out.println("~~~~~~~~~~~~~~~~ Registration selected ~~~~~~~~~~~~~~~~ ");
-		System.out.print("Enter Name: ");
-		String nric = "";
-		String name = cc.nextLine();
-		while (!nric.matches(nricRegex)) {
-			System.out.print("Enter NRIC: ");
-			nric = cc.nextLine();
-		}
-		System.out.print("Enter Password: ");
-		String password = cc.nextLine();
-		System.out.print("Officer (Y/N): ");
-		String officer = cc.nextLine();
-		Users newUser = new Users();
-		if (officer.equals("Y")) {
-			newUser = new Users(name, nric, "Officer", password);
-		} else {
-			newUser = new Users(name, nric, password);
-		}
-		return newUser;
-	}
-
-	// Display login dialogue
-	public static Users loginDialogue() {
-		String nric = cc.nextLine();
-		System.out.println("~~~~~~~~~~~~~~~~ Login selected ~~~~~~~~~~~~~~~~ ");
-		System.out.print("Enter NRIC: ");
-		nric = cc.nextLine();
-		System.out.print("Enter Password: ");
-		String password = cc.nextLine();
-		Users loginUser = new Users(nric, password);
-		return loginUser;
 	}
 
 	public static void main(String[] args) throws UnsupportedEncodingException, FileNotFoundException, IOException {
@@ -86,29 +53,54 @@ public class SafeEntryUserClient extends java.rmi.server.UnicastRemoteObject imp
 			// Create the reference to the remote object through the remiregistry
 			SafeEntryUser SEUser = (SafeEntryUser) // Naming.lookup("rmi://localhost/CalculatorService");
 			Naming.lookup("rmi://" + reg_host + ":" + reg_port + "/CalculatorService");
-			
+
 			boolean logout = false;
 			int choice = 0;
-			String message;
+			String message, name, nric, location;
+			Transactions transactionObject = new Transactions();
 
 			while (true) {
 				System.out.println("~~~~~~~~~~~~~~~~ Starting TraceTogether ~~~~~~~~~~~~~~~~ ");
-				System.out.println("\n\nSelect 1 for Check-in\nSelect 2 for Check-out\nSelect 3 to exit\n");
+				System.out.println(
+						"\n\nEnter 1 for Self Check-in\nEnter 2 for Self Check-out\nEnter 3 for Group Check-in\nEnter 4 for Group Check-out\nEnter 5 to view history\nEnter 6 to view possible exposure\nEnter 7 to add new family member\nEnter 8 to delete existing family member\nEnter 9 to exit");
 				choice = cc.nextInt();
 				switch (choice) {
 				case 1:
-				
-					String name = "Gideon";
-					String nric = "S454654F";
-					String location = "NYP SIT";
+					System.out.println("\nSelf Check-in selected!\n");
+					cc.nextLine();
+					System.out.print("\nEnter name: ");
+					name = cc.nextLine();
+					nric = "";
+					while (!nric.matches(nricRegex)) {
+						System.out.print("Enter NRIC: ");
+						nric = cc.nextLine();
+					}
+					System.out.print("\nEnter location: ");
+					location = cc.nextLine();
 
-					SEUser.selfCheckIn(SEC,nric,name, location);
+					transactionObject = new Transactions(name, nric, location);
 
-					
+					SEUser.selfCheckIn(SEC, transactionObject);
+
 					break;
-
 				case 2:
-					SEUser.selfCheckOut(SEC, "S2222222G");
+
+					System.out.println("\nSelf Check-out selected!\n");
+					cc.nextLine();
+					System.out.print("\nEnter name: ");
+					name = cc.nextLine();
+					nric = "";
+					while (!nric.matches(nricRegex)) {
+						System.out.print("Enter NRIC: ");
+						nric = cc.nextLine();
+					}
+					System.out.print("\nEnter location: ");
+					location = cc.nextLine();
+
+					transactionObject = new Transactions(name, nric, location);
+
+					SEUser.selfCheckOut(SEC, transactionObject);
+
 					break;
 
 				case 3:
