@@ -1,5 +1,7 @@
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -44,26 +46,40 @@ public class SafeEntryOfficerClient extends java.rmi.server.UnicastRemoteObject 
 			Naming.lookup("rmi://" + reg_host + ":" + reg_port + "/OfficerService");
 			System.out.println("OFFICER CLIENT SUCCESS");
 			
-			System.out.println("Press 1 to see database");
-			int choice = cc.nextInt();
-			switch(choice) {
-			case 1:
-				Path fileName = Path.of("C:\\Users\\Bernie\\OneDrive\\Desktop\\cloud\\projectrmi\\SafeEntry\\filename.txt");
-				try {
-					String actual = Files.readString(fileName);
-					System.out.println(actual);
-				} catch (IOException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-				
-				break;
-			case 2:
-				System.out.println("case 2");
-				break;
+			while(true) {
+				System.out.println("Press 1 to see database, Press 2 to add new infected location");
+				int choice = cc.nextInt();
+				switch(choice) {
+				case 1:
+					Path fileName = Path.of("C:\\Users\\Bernie\\OneDrive\\Desktop\\cloud\\projectrmi\\SafeEntry\\filename.txt");
+					try {
+						String actual = Files.readString(fileName);
+						System.out.println(actual);
+					} catch (IOException e) {
+						e.printStackTrace();
+					}
+					
+					break;
+				case 2:
+					System.out.println("Adding new infected location");
+					try {
+						SEOfficer.addLocation("JURONG POINT");
+					} catch (UnsupportedEncodingException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					} catch (FileNotFoundException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					} catch (IOException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+					
+					break;
 
-			default:
-				break;
+				default:
+					break;
+				}
 			}
 			
 		}
