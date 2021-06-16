@@ -24,7 +24,6 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Random;
-import java.util.Scanner;
 
 import classes.Transactions;
 import classes.Users;
@@ -32,13 +31,16 @@ import classes.Users;
 public class SafeEntryUserimpl extends java.rmi.server.UnicastRemoteObject implements SafeEntryUser {
 
 	private RMIClientIntf c;
-	public ArrayList<String> checkinListener = new ArrayList();
+	public static ArrayList<String> checkinListener = new ArrayList();
 
 	// Implementations must have an explicit constructor
 	// in order to declare the RemoteException exception
 
 	public SafeEntryUserimpl() throws java.rmi.RemoteException {
 		super();
+	}
+	public static ArrayList<String> getCheckinArray() {
+		return checkinListener;
 	}
 
 	public void selfCheckIn(RMIClientIntf client, Transactions checkInTransaction)
@@ -139,7 +141,7 @@ public class SafeEntryUserimpl extends java.rmi.server.UnicastRemoteObject imple
 					try {
 						Files.write(p, content.getBytes(charset));
 						//Add NRIC to ArrayList, ArrayList shown on Server terminal
-						checkinListener.remove(checkOutTransaction.getNric());
+//						checkinListener.remove(checkOutTransaction.getNric());
 						System.out.println("USER CHECK OUT: " + checkinListener);
 
 						c.callBack("Check-out SUCCESS. NRIC : " + checkOutTransaction.getNric());

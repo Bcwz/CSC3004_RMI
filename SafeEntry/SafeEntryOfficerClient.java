@@ -1,16 +1,8 @@
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.rmi.Naming;
 import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
-import java.util.ArrayList;
 import java.util.Scanner;
 
 import classes.InfectedLocations;
@@ -49,7 +41,7 @@ public class SafeEntryOfficerClient extends java.rmi.server.UnicastRemoteObject 
 			SafeEntryOfficer SEOfficer = (SafeEntryOfficer) // Naming.lookup("rmi://localhost/CalculatorService");
 			Naming.lookup("rmi://" + reg_host + ":" + reg_port + "/OfficerService");
 			System.out.println("OFFICER CLIENT SUCCESS");
-
+	
 			while (true) {
 				System.out.println(
 						"\nEnter 1 to view infected locations\nEnter 2 to declare infected COVID location\nEnter 3 to exit");
@@ -59,7 +51,7 @@ public class SafeEntryOfficerClient extends java.rmi.server.UnicastRemoteObject 
 				case 1:
 
 					SEOfficer.retrieveAllInfectedLocations(SEOC);
-
+		
 					break;
 
 				case 2:
@@ -85,7 +77,6 @@ public class SafeEntryOfficerClient extends java.rmi.server.UnicastRemoteObject 
 
 					SEOfficer.notifyClient(SEOC);
 					break;
-					
 
 				case 3:
 					System.out.println("Exiting");

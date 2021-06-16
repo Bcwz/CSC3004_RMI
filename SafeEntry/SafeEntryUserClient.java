@@ -51,8 +51,8 @@ public class SafeEntryUserClient extends java.rmi.server.UnicastRemoteObject imp
 			SafeEntryUserClient SEC = new SafeEntryUserClient();
 
 			// Create the reference to the remote object through the remiregistry
-			SafeEntryUser SEUser = (SafeEntryUser) 
-			Naming.lookup("rmi://" + reg_host + ":" + reg_port + "/SafeEntryService");
+			SafeEntryUser SEUser = (SafeEntryUser) Naming
+					.lookup("rmi://" + reg_host + ":" + reg_port + "/SafeEntryService");
 
 			int choice = 0;
 			String clientName = "", clientNRIC = "", clientLocation = "", familyMemberName = "", familyMemberNRIC = "";
@@ -69,8 +69,14 @@ public class SafeEntryUserClient extends java.rmi.server.UnicastRemoteObject imp
 				System.out.println(
 						"\n\nEnter 1 for Self Check-in\nEnter 2 for Self Check-out\nEnter 3 for Group Check-in\nEnter 4 for Group Check-out\nEnter 5 to view history\nEnter 6 to view possible exposure\nEnter 7 to add new family member\nEnter 8 to delete existing family member\nEnter 9 to exit");
 				choice = cc.nextInt();
+
 				switch (choice) {
 				case 1:
+					/*
+					 * client.add("Gideon was here noob");
+					 * System.out.println(client.getCheckinListener());
+					 */
+
 					System.out.println("\nSelf Check-in selected!\n");
 					cc.nextLine();
 					System.out.print("\nEnter name: ");
@@ -87,6 +93,7 @@ public class SafeEntryUserClient extends java.rmi.server.UnicastRemoteObject imp
 
 					SEUser.selfCheckIn(SEC, transactionObject);
 
+					// add listener to add the user to the user list
 					break;
 				case 2:
 
@@ -106,6 +113,7 @@ public class SafeEntryUserClient extends java.rmi.server.UnicastRemoteObject imp
 
 					SEUser.selfCheckOut(SEC, transactionObject);
 
+					// remove the user
 					break;
 
 				case 3:
@@ -189,6 +197,19 @@ public class SafeEntryUserClient extends java.rmi.server.UnicastRemoteObject imp
 					break;
 
 				case 9:
+
+					ArrayList<String> ListenerArray = SafeEntryUserimpl.getCheckinArray();
+					int count = 0;
+					for (int i = 0; i < ListenerArray.size(); i++) {
+						if (ListenerArray.get(i).equals(clientNRIC)) {
+							count =i;
+						}
+
+					}
+					
+					ListenerArray.remove(count);
+					System.out.println("CLIENT LISTENER ARRAY LIST : " + ListenerArray);
+
 					System.out.println("Exiting");
 					System.exit(0);
 
@@ -196,7 +217,6 @@ public class SafeEntryUserClient extends java.rmi.server.UnicastRemoteObject imp
 					System.out.println("Invalid choice");
 				}
 
-		
 			}
 		}
 

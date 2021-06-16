@@ -35,9 +35,7 @@ public class SafeEntryOfficerimpl extends java.rmi.server.UnicastRemoteObject im
 		Thread thread = new Thread(new Runnable() {
 
 			public void run() {
-				Random rg = new Random();
-				int timer = rg.nextInt(5000);
-				boolean inside = false;
+
 
 				String p = "./infected.txt";
 
@@ -75,6 +73,10 @@ public class SafeEntryOfficerimpl extends java.rmi.server.UnicastRemoteObject im
 					}
 
 				}
+				
+				ArrayList<String> ListenerArray =  SafeEntryUserimpl.getCheckinArray();
+				System.out.println("CLIENT LISTENER ARRAY LIST : " + ListenerArray);
+				
 
 			}
 		});
@@ -96,7 +98,7 @@ public class SafeEntryOfficerimpl extends java.rmi.server.UnicastRemoteObject im
 				int timer = rg.nextInt(5000);
 
 				String recordBuilder =  location.getLocation() + ";"
-						+ location.getCheckInTime() + ";" + location.getCheckOutTime() + ";\n";
+						+ location.getCheckOutTime() + ";" + location.getCheckInTime() + ";\n";
 				Path p = Paths.get("./infected.txt");
 
 				try (BufferedWriter writer = Files.newBufferedWriter(p, StandardOpenOption.APPEND)) {
@@ -166,7 +168,7 @@ public class SafeEntryOfficerimpl extends java.rmi.server.UnicastRemoteObject im
 //							transactionRecords.add(transactionLine);					
 							String[] res = transactionLine.split("[;]", 0);
 							Transactions transaction = new Transactions(res[0], res[1], res[2], res[3], res[4], res[5]);
-							System.out.println(res[0]+ res[1]+ res[2]+ res[3]+res[4]+res[5]);
+//							System.out.println(res[0]+ res[1]+ res[2]+ res[3]+res[4]+res[5]);
 							transactionList.add(transaction);
 
 							try {
@@ -182,7 +184,7 @@ public class SafeEntryOfficerimpl extends java.rmi.server.UnicastRemoteObject im
 //							transactionRecords.add(transactionLine);					
 							String[] res = infectedLocationLine.split("[;]", 0);
 							InfectedLocations InfectedLocation = new InfectedLocations(res[0], res[2], res[1]);
-							System.out.println(res[0]+ res[1]+ res[2]);
+//							System.out.println(res[0]+ res[1]+ res[2]);
 							infectedLocationList.add(InfectedLocation);
 
 							try {
@@ -203,8 +205,8 @@ public class SafeEntryOfficerimpl extends java.rmi.server.UnicastRemoteObject im
 										.equals(infectedLocationList.get(infectedCounter).getLocation())) {
 
 
-									System.out.println("Location 1: " + transactionList.get(transCounter).getLocation());
-									System.out.println("Location 2: " + infectedLocationList.get(infectedCounter).getLocation());
+//									System.out.println("Location 1: " + transactionList.get(transCounter).getLocation());
+//									System.out.println("Location 2: " + infectedLocationList.get(infectedCounter).getLocation());
 								
 									
 									
@@ -218,19 +220,40 @@ public class SafeEntryOfficerimpl extends java.rmi.server.UnicastRemoteObject im
 											.parse(transactionList.get(transCounter).getCheckInTime(), fmt).toLocalTime();
 
 									
-									System.out.println("locationCheckInTime: " + locationCheckInTime);
-									System.out.println("locationCheckOutTime: " + locationCheckOutTime);
-									System.out.println("transactionTime: " + transactionTime);
+//									System.out.println("locationCheckInTime: " + locationCheckInTime);
+//									System.out.println("locationCheckOutTime: " + locationCheckOutTime);
+//									System.out.println("transactionTime: " + transactionTime);
 									
 									if (transactionTime.isAfter(locationCheckInTime)
 											&& transactionTime.isBefore(locationCheckOutTime)) {
 										// Craft the notification message for every user
+										
+										System.out.println("User found: "+transactionList.get(transCounter).getName());
 										
 										try {
 											c.callBack("Location found!!!! FOUND PERSON: " +  transactionList.get(transCounter).getName());
 										} catch (RemoteException e) {
 											// TODO Auto-generated catch block
 											e.printStackTrace();
+										}
+										
+										ArrayList<String> ListenerArray =  SafeEntryUserimpl.getCheckinArray();
+										System.out.println("CLIENT LISTENER ARRAY LIST : " + ListenerArray);
+										
+										
+										for (int i = 0; i < ListenerArray.size(); i++) {
+											if (ListenerArray.get(i).equals(transactionList.get(transCounter).getNric())) {
+												System.out.println("Found : " + ListenerArray.get(i));
+												//notify the client
+												
+											}
+											else {
+												System.out.println("KNN");
+												System.out.println("Found 1: " + ListenerArray.get(i));
+												System.out.println("Found 2: " + transactionList.get(transCounter).getNric());
+												
+											}
+
 										}
 
 									} else {
