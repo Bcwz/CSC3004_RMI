@@ -186,8 +186,6 @@ public class SafeEntryUserimpl extends java.rmi.server.UnicastRemoteObject imple
 
 			@Override
 			public void run() {
-				Random rg = new Random();
-				int timer = rg.nextInt(5000);
 				try {
 					for (int counter = 0; counter < checkInTransactionList.size(); counter++) {
 

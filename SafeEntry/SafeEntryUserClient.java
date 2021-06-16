@@ -69,9 +69,10 @@ public class SafeEntryUserClient extends java.rmi.server.UnicastRemoteObject imp
 			System.out.println("~~~~~~~~~~~~~~~~ Starting TraceTogether ~~~~~~~~~~~~~~~~ ");
 			System.out.print("\nEnter name: ");
 			clientName = cc.nextLine();
-			clientNRIC = "";
+			System.out.print("Enter NRIC: ");
+			clientNRIC = cc.nextLine();
 			while (!clientNRIC.matches(nricRegex)) {
-				System.out.print("Enter NRIC: ");
+				System.out.print("Wrong NRIC format. Please try again. Enter NRIC: ");
 				clientNRIC = cc.nextLine();
 			}
 			System.out.print("Enter location: ");
@@ -103,7 +104,7 @@ public class SafeEntryUserClient extends java.rmi.server.UnicastRemoteObject imp
 					break;
 
 				case 3:
-					System.out.println("\nGroup Check-out selected!\n");
+					System.out.println("\nGroup Check-in selected!\n");
 
 					if (familyMembersList.isEmpty()) {
 						System.out.println("No family member found. Please add one family member.");
@@ -114,12 +115,13 @@ public class SafeEntryUserClient extends java.rmi.server.UnicastRemoteObject imp
 									familyMembersList.get(counter).getNric(), clientLocation));
 						}
 
+						SEUser.groupCheckIn(SEC, familyTransactionList);
 					}
 
-					SEUser.groupCheckIn(SEC, familyTransactionList);
 					break;
 
 				case 4:
+					System.out.println("\nGroup Check-out selected!\n");
 					if (familyMembersList.isEmpty()) {
 						System.out.println("No family member found. Please add one family member.");
 					} else {
