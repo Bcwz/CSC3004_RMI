@@ -1,6 +1,8 @@
 /*
 	Code: Safe Entry User Client	
-
+	
+	Simple user client program that remotely calls a set of trace together
+	methods available on the remote SafeEntryUserImpl class
 */
 
 import java.io.FileNotFoundException;
@@ -23,7 +25,6 @@ public class SafeEntryUserClient extends java.rmi.server.UnicastRemoteObject imp
 	final static String nricRegex = "^[STFG]\\d{7}[A-Z]$";
 
 	public SafeEntryUserClient() throws RemoteException {
-
 	}
 
 	public void callBack(String s) throws java.rmi.RemoteException {
@@ -49,10 +50,10 @@ public class SafeEntryUserClient extends java.rmi.server.UnicastRemoteObject imp
 
 		try {
 
-			// creation of client object
+			// Creation of client object
 			SafeEntryUserClient SEC = new SafeEntryUserClient();
 
-			// Create the reference to the remote object through the remiregistry
+			// Create the reference to the remote object through the RMIregistry. Remote methods are called through the SEUser obj
 			SafeEntryUser SEUser = (SafeEntryUser) Naming
 					.lookup("rmi://" + reg_host + ":" + reg_port + "/SafeEntryService");
 
@@ -78,9 +79,6 @@ public class SafeEntryUserClient extends java.rmi.server.UnicastRemoteObject imp
 			System.out.print("Enter location: ");
 			clientLocation = cc.nextLine();
 		
-
-//			System.out.println("USER CHECKED IN: " + connectedClients);
-
 			while (true) {
 
 				System.out.println(
@@ -88,27 +86,30 @@ public class SafeEntryUserClient extends java.rmi.server.UnicastRemoteObject imp
 				choice = cc.nextInt();
 
 				switch (choice) {
-				case 1:
+				case 1: // Performs a self check-in. selfCheckIn() invocation method called
 
-					System.out.println("\nSelf Check-in selected!\n");
+					System.out.println("\nSelf Check-in selected\n");
 					transactionObject = new Transactions(clientName, clientNRIC, clientLocation);
 					SEUser.selfCheckIn(SEC, transactionObject);
-
 					break;
-				case 2:
+					
+				case 2: // Performs a self check-out. selfCheckOut() invocation method called
 
-					System.out.println("\nSelf Check-out selected!\n");
+					System.out.println("\nSelf Check-out selected\n");
 					transactionObject = new Transactions(clientName, clientNRIC, clientLocation);
 					SEUser.selfCheckOut(SEC, transactionObject);
-
 					break;
 
-				case 3:
-					System.out.println("\nGroup Check-in selected!\n");
-
+				case 3: // Performs a group check-in. groupCheckIn() invocation method called
+					
+					System.out.println("\nGroup Check-in selected\n");
+					
+					// Check if the familyMembersList is empty
 					if (familyMembersList.isEmpty()) {
 						System.out.println("No family member found. Please add one family member.");
 					} else {
+						
+						// Create Transactions objects based on family member list
 						familyTransactionList.removeAll(familyTransactionList);
 						for (int counter = 0; counter < familyMembersList.size(); counter++) {
 							familyTransactionList.add(new Transactions(familyMembersList.get(counter).getName(),
@@ -117,11 +118,13 @@ public class SafeEntryUserClient extends java.rmi.server.UnicastRemoteObject imp
 
 						SEUser.groupCheckIn(SEC, familyTransactionList);
 					}
-
 					break;
 
-				case 4:
-					System.out.println("\nGroup Check-out selected!\n");
+				case 4: // Performs a group check-out. groupCheckOut() invocation method called
+					
+					System.out.println("\nGroup Check-out selected\n");
+					
+					// Check if the familyMembersList is empty
 					if (familyMembersList.isEmpty()) {
 						System.out.println("No family member found. Please add one family member.");
 					} else {
@@ -130,16 +133,14 @@ public class SafeEntryUserClient extends java.rmi.server.UnicastRemoteObject imp
 
 					break;
 
-				case 5:
+				case 5: // View user's history. viewHistory() invocation method called
 
-					System.out.println("\nView history selected!\n");
+					System.out.println("\nView history selected\n");
 					SEUser.viewHistory(SEC, new Users(clientName, clientNRIC));
-
 					break;
 
-				case 6:
-					// add family members to the arraylist of family members
-					// does not need any invocation of methods, store as local variable
+				case 6: // Add family members to the familyMembersList. Does not perform any invocation methods
+					
 					cc.nextLine();
 					familyMemberNRIC = "";
 					System.out.print("\nAdd new family member\nEnter name: ");
@@ -158,9 +159,10 @@ public class SafeEntryUserClient extends java.rmi.server.UnicastRemoteObject imp
 						System.out.println("Family member added sucessfully");
 					}
 					break;
-				case 7:
+					
+				case 7:  // Remove family members from the familyMembersList. Does not perform any invocation methods
+					
 					System.out.println("\nDelete family member selected");
-
 					if (familyMembersList.isEmpty()) {
 						System.out.println("No family member found!");
 					} else {
@@ -177,8 +179,7 @@ public class SafeEntryUserClient extends java.rmi.server.UnicastRemoteObject imp
 					}
 					break;
 
-				case 8:
-//					connectedClients.remove(clientNRIC);
+				case 8:  // Exit the client program
 					System.out.println("Exiting");
 					System.exit(0);
 

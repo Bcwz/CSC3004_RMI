@@ -1,9 +1,10 @@
+
+
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -13,32 +14,37 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
-import java.util.Random;
-
 import classes.InfectedLocations;
 import classes.Transactions;
 
-public class SafeEntryOfficerimpl extends java.rmi.server.UnicastRemoteObject implements SafeEntryOfficer {
-	private RMIClientIntf c;
-	private static final Path transactionFilePath =  Paths.get("./TraceTogetherTransaction.csv");
-	private static final Path infectedLocationsFilePath =  Paths.get("./TraceTogetherInfectedLocations.csv");
+public class SafeEntryOfficerImpl extends java.rmi.server.UnicastRemoteObject implements SafeEntryOfficer {
 
-	protected SafeEntryOfficerimpl() throws RemoteException {
+	private RMIClientIntf clientCallBack;
+	private static final Path transactionFilePath = Paths.get("./TraceTogetherTransaction.csv");
+	private static final Path infectedLocationsFilePath = Paths.get("./TraceTogetherInfectedLocations.csv");
+	private static final DateTimeFormatter DATETIMEFORMAT = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss");
+
+	// Explicit constructor to declare the RemoteException exception
+	protected SafeEntryOfficerImpl() throws RemoteException {
 		super();
 	}
 
+	/**
+	 * Allows officers to retrieve all infected locations. Reads records in
+	 * TraceTogetherInfectedLocations.csv
+	 * 
+	 * @param client RMIClientIntf object for callback
+	 */
 	@Override
-	public void retrieveAllInfectedLocations(RMIClientIntf client)
-			throws RemoteException, UnsupportedEncodingException, FileNotFoundException, IOException {
+	public void retrieveAllInfectedLocations(RMIClientIntf client) {
 
-		// TODO Auto-generated method stub
-		c = client;
+		clientCallBack = client;
 
 		Thread thread = new Thread(new Runnable() {
 
 			public void run() {
 
-
+				// Create a buffer reader to store the file
 				BufferedReader bufReader = null;
 				try {
 					bufReader = new BufferedReader(new FileReader(infectedLocationsFilePath.toFile()));
@@ -46,7 +52,9 @@ public class SafeEntryOfficerimpl extends java.rmi.server.UnicastRemoteObject im
 					// TODO Auto-generated catch block
 					e2.printStackTrace();
 				}
-				ArrayList<String> listOfLines = new ArrayList<>();
+
+				// Save each line of InfectedLocations for reading and updating
+				ArrayList<String> infectedLocationStringList = new ArrayList<>();
 				String line = null;
 				try {
 					line = bufReader.readLine();
@@ -55,7 +63,7 @@ public class SafeEntryOfficerimpl extends java.rmi.server.UnicastRemoteObject im
 					e1.printStackTrace();
 				}
 				while (line != null) {
-					listOfLines.add(line);
+					infectedLocationStringList.add(line);
 					try {
 						line = bufReader.readLine();
 					} catch (IOException e) {
@@ -63,96 +71,109 @@ public class SafeEntryOfficerimpl extends java.rmi.server.UnicastRemoteObject im
 						e.printStackTrace();
 					}
 				}
-				for (int i = 0; i < listOfLines.size(); i++) {
 
+				// Iterate through the list to find all locations
+				for (int i = 0; i < infectedLocationStringList.size(); i++) {
 					try {
-						
-						String[] res=listOfLines.get(i).split("[;]", 0);
-						c.callBack("Location: "+res[0]+" Check-in time: "+res[2]+" Check-out time: "+res[1]);
-						
-					} catch (RemoteException e) {
+
+						// Split the transactionStringList with the delimiter ;
+						String[] recordFound = infectedLocationStringList.get(i).split("[;]", 0);
+
+						String location = recordFound[0];
+						String checkInTime = recordFound[1];
+						String checkOutTime = recordFound[2];
+						String locationHistory = "\nLocation: " + location + " Check-in time: " + checkInTime
+								+ " Check-out time: " + checkOutTime;
+
+						// Returns the list of history through a callback.
+						clientCallBack.callBack(locationHistory);
+
+					} catch (IOException e) {
 						// TODO Auto-generated catch block
 						e.printStackTrace();
 					}
 
 				}
 
-				if(listOfLines.isEmpty()) {
+				if (infectedLocationStringList.isEmpty()) {
 					try {
-						c.callBack("No record found. Please try again.");
-					} catch (RemoteException e) {
+
+						// Returns the list of history through a callback.
+						clientCallBack.callBack("No record found. Please try again.");
+
+					} catch (IOException e) {
 						// TODO Auto-generated catch block
 						e.printStackTrace();
 					}
 				}
 
-				
-
-				
 			}
 		});
+
+		// Start a new Thread for concurrency and faster processing of tasks
 		thread.start();
 		return;
 
 	}
 
+	/**
+	 * Allow officers to add an infected location. Store records in
+	 * TraceTogetherInfectedLocations.csv file.
+	 * 
+	 * @param InfectedLocations location object contain Location, check-in time,
+	 *                          check-out time
+	 * @param client            RMIClientIntf object for callback
+	 */
 	@Override
-	public void addLocation(RMIClientIntf client, InfectedLocations location)
-			throws RemoteException, UnsupportedEncodingException, FileNotFoundException, IOException {
-		c = client;
+	public void addLocation(RMIClientIntf client, InfectedLocations location) {
+		clientCallBack = client;
 
 		Thread thread = new Thread(new Runnable() {
 
 			@Override
 			public void run() {
-				Random rg = new Random();
-				int timer = rg.nextInt(5000);
 
-				String recordBuilder = location.getLocation() + ";" + location.getCheckOutTime() + ";"
+				// Create a new String to be inserted into the CSV
+				String locationBuilder = location.getLocation() + ";" + location.getCheckOutTime() + ";"
 						+ location.getCheckInTime() + ";\n";
-//				Path p = Paths.get("./infected.txt");
 
-				try (BufferedWriter writer = Files.newBufferedWriter(infectedLocationsFilePath, StandardOpenOption.APPEND)) {
-					writer.write(recordBuilder);
-					c.callBack("Location added SUCCESS. Location: " + location.getLocation());
-				} catch (java.rmi.RemoteException e) {
+				try (BufferedWriter writer = Files.newBufferedWriter(infectedLocationsFilePath,
+						StandardOpenOption.APPEND)) {
+					// Append the String to the end of the file
+					writer.write(locationBuilder);
+
+					// Perform a callback to inform the user of the result.
+					clientCallBack.callBack("Location added SUCCESS. Location: " + location.getLocation());
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
 					e.printStackTrace();
-				} catch (UnsupportedEncodingException e1) {
-					// TODO Auto-generated catch block
-					e1.printStackTrace();
-				} catch (FileNotFoundException e1) {
-					// TODO Auto-generated catch block
-					e1.printStackTrace();
-				} catch (IOException e1) {
-					// TODO Auto-generated catch block
-					e1.printStackTrace();
 				}
 			}
 		});
+
+		// Start a new Thread for concurrency and faster processing of tasks
 		thread.start();
 		return;
 
 	}
 
+	/**
+	 * Allow officers to notify connected clients of a possible exposure through a
+	 * callback of connected clients.
+	 * 
+	 * @param client RMIClientIntf object for callback
+	 */
 	@Override
-	public void notifyClient(RMIClientIntf client)
-			throws RemoteException, UnsupportedEncodingException, FileNotFoundException, IOException {
-		// Get the list of infected location, checkin&checkout
+	public void notifyClient(RMIClientIntf client) {
 
-		// read the infected location first
+		clientCallBack = client;
 
-		// TODO Auto-generated method stub
-		c = client;
-
-		
 		Thread thread = new Thread(new Runnable() {
 
 			public void run() {
-				boolean inside=false;
-//				String transactionFilePath = "./filename.txt";
-//				String infectedFilePath = "./infected.txt";
-				DateTimeFormatter fmt = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss");
+				boolean found = false;
 
+				// Create buffer readers to store the files
 				BufferedReader transactionFileBuffer = null;
 				BufferedReader infectedFileBuffer = null;
 				try {
@@ -162,8 +183,7 @@ public class SafeEntryOfficerimpl extends java.rmi.server.UnicastRemoteObject im
 					// TODO Auto-generated catch block
 					e2.printStackTrace();
 				}
-//						ArrayList<String> transactionRecords = new ArrayList<>();
-//						ArrayList<String> infectedLocationRecords = new ArrayList<>();
+
 				String transactionLine = null, infectedLocationLine = null;
 				try {
 					transactionLine = transactionFileBuffer.readLine();
@@ -173,14 +193,19 @@ public class SafeEntryOfficerimpl extends java.rmi.server.UnicastRemoteObject im
 					e1.printStackTrace();
 				}
 
+				// Save each line of Transaction and Infected Location for reading
 				ArrayList<Transactions> transactionList = new ArrayList<Transactions>();
 				ArrayList<InfectedLocations> infectedLocationList = new ArrayList<InfectedLocations>();
 
 				while (transactionLine != null) {
-//							transactionRecords.add(transactionLine);					
-					String[] res = transactionLine.split("[;]", 0);
-					Transactions transaction = new Transactions(res[0], res[1], res[2], res[3], res[4], res[5]);
-//							System.out.println(res[0]+ res[1]+ res[2]+ res[3]+res[4]+res[5]);
+
+					// Split the transactionLine with the delimiter ;
+					String[] transactionRecord = transactionLine.split("[;]", 0);
+
+					// Creation and addition of transaction object based on the NRIC, name, type,
+					// location, checkOutTime, checkInTime
+					Transactions transaction = new Transactions(transactionRecord[0], transactionRecord[1],
+							transactionRecord[2], transactionRecord[3], transactionRecord[4], transactionRecord[5]);
 					transactionList.add(transaction);
 
 					try {
@@ -193,10 +218,12 @@ public class SafeEntryOfficerimpl extends java.rmi.server.UnicastRemoteObject im
 
 				while (infectedLocationLine != null) {
 
-//							transactionRecords.add(transactionLine);					
+					// Split the transactionLine with the delimiter ;
 					String[] res = infectedLocationLine.split("[;]", 0);
+
+					// Creation and addition of InfectedLocation object based on the location,
+					// checkOutTime, checkInTime
 					InfectedLocations InfectedLocation = new InfectedLocations(res[0], res[2], res[1]);
-//							System.out.println(res[0]+ res[1]+ res[2]);
 					infectedLocationList.add(InfectedLocation);
 
 					try {
@@ -206,86 +233,88 @@ public class SafeEntryOfficerimpl extends java.rmi.server.UnicastRemoteObject im
 						e.printStackTrace();
 					}
 				}
+
+				// Iterate through both the infectedLocationList and transactionList to find for
+				// possible exposures
 				for (int infectedCounter = 0; infectedCounter < infectedLocationList.size(); infectedCounter++) {
 
 					for (int transCounter = 0; transCounter < transactionList.size(); transCounter++) {
 
-						// check the location first based on the name
-
+						// Comparison of transactionList & infectedLocationList locations
 						if (transactionList.get(transCounter).getLocation()
 								.equals(infectedLocationList.get(infectedCounter).getLocation())) {
 
-//									System.out.println("Location 1: " + transactionList.get(transCounter).getLocation());
-//									System.out.println("Location 2: " + infectedLocationList.get(infectedCounter).getLocation());
-
+							// Creation of transactionList & infectedLocationList LocalTime object
 							LocalTime locationCheckInTime = LocalDateTime
-									.parse(infectedLocationList.get(infectedCounter).getCheckInTime(), fmt)
+									.parse(infectedLocationList.get(infectedCounter).getCheckInTime(), DATETIMEFORMAT)
 									.toLocalTime();
 							LocalTime locationCheckOutTime = LocalDateTime
-									.parse(infectedLocationList.get(infectedCounter).getCheckOutTime(), fmt)
+									.parse(infectedLocationList.get(infectedCounter).getCheckOutTime(), DATETIMEFORMAT)
 									.toLocalTime();
 							LocalTime transactionTime = LocalDateTime
-									.parse(transactionList.get(transCounter).getCheckInTime(), fmt).toLocalTime();
+									.parse(transactionList.get(transCounter).getCheckInTime(), DATETIMEFORMAT)
+									.toLocalTime();
 
-//									System.out.println("locationCheckInTime: " + locationCheckInTime);
-//									System.out.println("locationCheckOutTime: " + locationCheckOutTime);
-//									System.out.println("transactionTime: " + transactionTime);
-
+							// Comparison of transactionList & infectedLocationList LocalTime object
 							if (transactionTime.isAfter(locationCheckInTime)
 									&& transactionTime.isBefore(locationCheckOutTime)) {
-								// Craft the notification message for every user
-								inside=true;
-								System.out.println("User found: " + transactionList.get(transCounter).getName());
-								
+
+								found = true;
 								try {
-									c.callBack("Location found!!!! FOUND PERSON: "
-											+ transactionList.get(transCounter).getName());
+
+									// Perform a callback to inform the user of the result.
+									clientCallBack.callBack("Possible exposure user found: "
+											+ transactionList.get(transCounter).getName() + ". Sending notification.");
+
 								} catch (RemoteException e) {
 									// TODO Auto-generated catch block
 									e.printStackTrace();
 								}
 
-								ArrayList<String> ListenerArray = SafeEntryUserimpl.getCheckinArray();
-								System.out.println("CLIENT LISTENER ARRAY LIST : " + ListenerArray);
+								ArrayList<String> connectedClientList = SafeEntryUserImpl.getConnectedClientList();
+//								System.out.println("CLIENT LISTENER ARRAY LIST : " + connectedClientList);
 
-								for (int i = 0; i < ListenerArray.size(); i++) {
-									if (ListenerArray.get(i).equals(transactionList.get(transCounter).getNric())) {
+								// Iterated through the ConnectedClientList and invoke the client's notification
+								// callback
+								for (int i = 0; i < connectedClientList.size(); i++) {
+									if (connectedClientList.get(i)
+											.equals(transactionList.get(transCounter).getNric())) {
 //										System.out.println("Found : " + ListenerArray.get(i));
 //										SafeEntryUserimpl.officerCallBack("ALERT!! You might be exposed to Covid-19.");
-										RMIClientIntf intsdadsa=SafeEntryUserimpl.clientMap.get(ListenerArray.get(i));
+
+										RMIClientIntf clientCallBack = SafeEntryUserImpl.connectClients
+												.get(connectedClientList.get(i));
 										try {
-											intsdadsa.callBack("ALERT!! You might be exposed to Covid-19.");
+
+											// Returns the possible exposure notification
+											clientCallBack
+													.callBack("ALERT!! You have a possible exposure to Covid-19.");
 										} catch (RemoteException e) {
 											// TODO Auto-generated catch block
 											e.printStackTrace();
 										}
-										//access the var
-										
 									}
-
 								}
-
-							} 
-
+							}
 						}
-
 					}
-
 				}
-				
-		if(!inside) {
 
-			try {
-				c.callBack("All users are healthy. No notfication required.");
-			} catch (RemoteException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-		}
+				if (!found) {
+					try {
 
-				
+						// Perform a callback to inform the user of the result.
+						clientCallBack.callBack("No possible exposure found. No notfication sent.");
+						
+					} catch (RemoteException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+				}
 			}
 		});
+		
+		// Start a new Thread for concurrency and faster processing of tasks
 		thread.start();
 		return;
 

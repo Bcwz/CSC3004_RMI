@@ -1,18 +1,14 @@
 /*
-	Code: CalculatorImpl remote object	calculatorimpl.java
-	Date: 10th October 2000
-
-	Contains the arithmetic methods that can be remotley invoked
+	Code: SafeEntryUserImpl remote object	
+	Contains the Users methods that can be remotely invoked by client.
+	extends java.rmi.server.UnicastRemoteObject and implements SafeEntryUser (Interface)
 */
 
-// The implementation Class must implement the rmi interface (calculator)
-// and be set as a Remote object on a server
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -24,148 +20,163 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Random;
-
 import classes.Transactions;
 import classes.Users;
 
-public class SafeEntryUserimpl extends java.rmi.server.UnicastRemoteObject implements SafeEntryUser {
+public class SafeEntryUserImpl extends java.rmi.server.UnicastRemoteObject implements SafeEntryUser {
 
-	private static RMIClientIntf c;
-	public static ArrayList<String> checkinListener = new ArrayList<String>();
-	private static final Path transactionFilePath =  Paths.get("./TraceTogetherTransaction.csv");
-	public static HashMap<String, RMIClientIntf> clientMap = new HashMap<String, RMIClientIntf>();
+	private static RMIClientIntf clientCallBack;
+	public static ArrayList<String> connectedClientList = new ArrayList<String>();
+	public static HashMap<String, RMIClientIntf> connectClients = new HashMap<String, RMIClientIntf>();
+	private static final Path TRANSACTIONFILEPATH = Paths.get("./TraceTogetherTransaction.csv");
+	private static final String SELFCHECKINTYPE = "Self check-in";
+	private static final String GROUPCHECKINTYPE = "Group check-in";
+	private static final DateTimeFormatter DATETIMEFORMAT = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss");
+	private static final Charset CHARSET = StandardCharsets.UTF_8;
 
-
-	// Implementations must have an explicit constructor
-	// in order to declare the RemoteException exception
-
-	public SafeEntryUserimpl() throws java.rmi.RemoteException {
+	// Explicit constructor to declare the RemoteException exception
+	public SafeEntryUserImpl() throws java.rmi.RemoteException {
 		super();
 	}
 
-	public static ArrayList<String> getCheckinArray() {
-		return checkinListener;
+	/**
+	 * Returns the list of connected clients
+	 * 
+	 * @return connectedClientList.
+	 */
+	public static ArrayList<String> getConnectedClientList() {
+		return connectedClientList;
 	}
 
-	public static void addClientCheckinArray(String input) {
-		checkinListener.add(input);
-	}
-	
-	public static void officerCallBack(String message) {
+	/**
+	 * Allows officers to perform callback to notify clients
+	 * 
+	 * @param message Message to be displayed
+	 */
+	public static void clientCallBack(String message) {
 		try {
-			c.callBack(message);
+			clientCallBack.callBack(message);
 		} catch (RemoteException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}
 
-	public void selfCheckIn(RMIClientIntf client, Transactions checkInTransaction)
-			throws UnsupportedEncodingException, FileNotFoundException, IOException {
-		c = client;
+	/**
+	 * Allow users to check in. Store records in TraceTogetherTransaction.csv file.
+	 * 
+	 * @param checkInTransaction Transactions object contain NRIC, Name, Location
+	 * @param client             RMIClientIntf object for callback
+	 */
+	@Override
+	public void selfCheckIn(RMIClientIntf client, Transactions checkInTransaction) {
+
+		clientCallBack = client;
 
 		Thread thread = new Thread(new Runnable() {
 
 			@Override
 			public void run() {
 
-				
-				checkInTransaction.setType("Self check-in");
-				LocalDateTime now = LocalDateTime.now();
-				DateTimeFormatter format = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss");
-				String formatDateTime = now.format(format);
-				checkInTransaction.setCheckInTime(formatDateTime);
+				// Set the Transactions object Type, CheckInTime and CheckOutTime to be null.
+				checkInTransaction.setType(SELFCHECKINTYPE);
+				checkInTransaction.setCheckInTime(LocalDateTime.now().format(DATETIMEFORMAT));
 				checkInTransaction.setCheckOutTime(null);
 
-				String recordBuilder = checkInTransaction.getNric() + ";" + checkInTransaction.getName() + ";"
+				// Create a new String to be inserted into the CSV
+				String transactionBuilder = checkInTransaction.getNric() + ";" + checkInTransaction.getName() + ";"
 						+ checkInTransaction.getType() + ";" + checkInTransaction.getLocation() + ";"
 						+ checkInTransaction.getCheckOutTime() + ";" + checkInTransaction.getCheckInTime() + ";\n";
 
-			
+				try (BufferedWriter writer = Files.newBufferedWriter(TRANSACTIONFILEPATH, StandardOpenOption.APPEND)) {
+					// Append the String to the end of the file
+					writer.write(transactionBuilder);
 
-				try (BufferedWriter writer = Files.newBufferedWriter(transactionFilePath, StandardOpenOption.APPEND)) {
-					writer.write(recordBuilder);
-					checkinListener.add(checkInTransaction.getNric());
-					registerClient(checkInTransaction.getNric(),c);
-					c.callBack("Check-in SUCCESS. NRIC: " + checkInTransaction.getNric());
+					// Add the connected user's NRIC to the list of connected clients
+					connectedClientList.add(checkInTransaction.getNric());
 
-				} catch (java.rmi.RemoteException e) {
+					// Associate the user's NRIC and RMIClientIntf object to the HashMap. Used for
+					// notifying (callback) the connected user
+					registerClient(checkInTransaction.getNric(), clientCallBack);
+
+					// Perform a callback to inform the user of the result.
+					clientCallBack.callBack("Check-in SUCCESS. NRIC: " + checkInTransaction.getNric());
+
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
 					e.printStackTrace();
-				} catch (UnsupportedEncodingException e1) {
-					// TODO Auto-generated catch block
-					e1.printStackTrace();
-				} catch (FileNotFoundException e1) {
-					// TODO Auto-generated catch block
-					e1.printStackTrace();
-				} catch (IOException e1) {
-					// TODO Auto-generated catch block
-					e1.printStackTrace();
 				}
 			}
 		});
+		// Start a new Thread for concurrency and faster processing of tasks
 		thread.start();
 		return;
 	}
 
+	/**
+	 * Allow users to check out. Store records in TraceTogetherTransaction.csv file.
+	 * 
+	 * @param checkOutTransaction Transactions object contain NRIC, Name, Location
+	 * @param client              RMIClientIntf object for callback
+	 */
+	@Override
 	public void selfCheckOut(RMIClientIntf client, Transactions checkOutTransaction) throws java.rmi.RemoteException {
 
-		c = client;
+		clientCallBack = client;
 
 		Thread thread = new Thread(new Runnable() {
 
 			public void run() {
 
-				checkOutTransaction.setType("Self check-in");
-//				Path p = Paths.get(transactionFilePath);
-				Charset charset = StandardCharsets.UTF_8;
+				// Set the Transactions object Type.
+				checkOutTransaction.setType(SELFCHECKINTYPE);
 
+				// Create String check in record based on the transaction requirements
 				String checkinRecord = checkOutTransaction.getNric() + ";" + checkOutTransaction.getName() + ";"
 						+ checkOutTransaction.getType() + ";" + checkOutTransaction.getLocation() + ";null;";
 
-				String content = "";
+				// Store the file content as a string
+				String transactionContent = "";
 				try {
-					content = new String(Files.readAllBytes(transactionFilePath), charset);
-				} catch (IOException e2) {
+					transactionContent = new String(Files.readAllBytes(TRANSACTIONFILEPATH), CHARSET);
+				} catch (IOException e) {
 					// TODO Auto-generated catch block
-					e2.printStackTrace();
+					e.printStackTrace();
 				}
 
-				if (content.contains(checkinRecord)) {
-					LocalDateTime now = LocalDateTime.now();
-					DateTimeFormatter format = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss");
-					String formatDateTime = now.format(format);
-					checkOutTransaction.setCheckOutTime(formatDateTime);
+				// Find the previous record by NRIC, Name, TransactionType, Location and update
+				// the record
+				if (transactionContent.contains(checkinRecord)) {
 
-					String recordBuilder = checkOutTransaction.getNric() + ";" + checkOutTransaction.getName() + ";"
-							+ checkOutTransaction.getType() + ";" + checkOutTransaction.getLocation() + ";"
+					// Set the Transactions object CheckOutTime
+					checkOutTransaction.setCheckOutTime(LocalDateTime.now().format(DATETIMEFORMAT));
+
+					// Create a new String to be updated into the CSV
+					String transactionBuilder = checkOutTransaction.getNric() + ";" + checkOutTransaction.getName()
+							+ ";" + checkOutTransaction.getType() + ";" + checkOutTransaction.getLocation() + ";"
 							+ checkOutTransaction.getCheckOutTime() + ";";
 
-					content = content.replaceAll(checkinRecord, recordBuilder);
-					try {
-						Files.write(transactionFilePath, content.getBytes(charset));
-						// Add NRIC to ArrayList, ArrayList shown on Server terminal
-//						
-//						System.out.println("USER CHECK OUT: " + checkinListener);
+					// Replace (update) the transaction to includes the checkout time
+					transactionContent = transactionContent.replaceAll(checkinRecord, transactionBuilder);
 
-						c.callBack("Check-out SUCCESS. NRIC : " + checkOutTransaction.getNric());
-					} catch (java.rmi.RemoteException e) {
+					try {
+						// Update the file
+						Files.write(TRANSACTIONFILEPATH, transactionContent.getBytes(CHARSET));
+
+						// Perform a callback to inform the user of the result.
+						clientCallBack.callBack("Check-out SUCCESS. NRIC : " + checkOutTransaction.getNric());
+
+					} catch (IOException e) {
+						// TODO Auto-generated catch block
 						e.printStackTrace();
-					} catch (UnsupportedEncodingException e1) {
-						// TODO Auto-generated catch block
-						e1.printStackTrace();
-					} catch (FileNotFoundException e1) {
-						// TODO Auto-generated catch block
-						e1.printStackTrace();
-					} catch (IOException e1) {
-						// TODO Auto-generated catch block
-						e1.printStackTrace();
 					}
 
 				} else {
 					try {
-						c.callBack("Check-out FAILED. NRIC : " + checkOutTransaction.getNric() + ". Please try again.");
-					} catch (RemoteException e) {
+						// Perform a callback to inform the user of the result.
+						clientCallBack.callBack(
+								"Check-out FAILED. NRIC : " + checkOutTransaction.getNric() + ". Please try again.");
+					} catch (IOException e) {
 						// TODO Auto-generated catch block
 						e.printStackTrace();
 					}
@@ -173,14 +184,24 @@ public class SafeEntryUserimpl extends java.rmi.server.UnicastRemoteObject imple
 
 			}
 		});
+
+		// Start a new Thread for concurrency and faster processing of tasks
 		thread.start();
 		return;
 	}
 
+	/**
+	 * Allow users to perform group check in. Store records in
+	 * TraceTogetherTransaction.csv file.
+	 * 
+	 * @param checkInTransactionList list of Transactions object contain NRIC, Name,
+	 *                               Location
+	 * @param client                 RMIClientIntf object for callback
+	 */
 	@Override
 	public void groupCheckIn(RMIClientIntf client, ArrayList<Transactions> checkInTransactionList)
 			throws RemoteException {
-		c = client;
+		clientCallBack = client;
 
 		Thread thread = new Thread(new Runnable() {
 
@@ -189,26 +210,27 @@ public class SafeEntryUserimpl extends java.rmi.server.UnicastRemoteObject imple
 				try {
 					for (int counter = 0; counter < checkInTransactionList.size(); counter++) {
 
-						// Set the Transactions Object Type and CheckInTime
-						checkInTransactionList.get(counter).setType("Group check-in");
-						LocalDateTime now = LocalDateTime.now();
-						DateTimeFormatter format = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss");
-						String formatDateTime = now.format(format);
-						checkInTransactionList.get(counter).setCheckInTime(formatDateTime);
+						// Set the Transactions object Type, CheckInTime and CheckOutTime to be null.
+						checkInTransactionList.get(counter).setType(GROUPCHECKINTYPE);
+						checkInTransactionList.get(counter).setCheckInTime(LocalDateTime.now().format(DATETIMEFORMAT));
 						checkInTransactionList.get(counter).setCheckOutTime(null);
 
+						// Create a new String to be inserted into the CSV
 						String recordBuilder = checkInTransactionList.get(counter).getNric() + ";"
 								+ checkInTransactionList.get(counter).getName() + ";"
 								+ checkInTransactionList.get(counter).getType() + ";"
 								+ checkInTransactionList.get(counter).getLocation() + ";"
 								+ checkInTransactionList.get(counter).getCheckOutTime() + ";"
 								+ checkInTransactionList.get(counter).getCheckInTime() + ";\n";
-//						Path p = Paths.get("./filename.csv");
 
-						try (BufferedWriter writer = Files.newBufferedWriter(transactionFilePath, StandardOpenOption.APPEND)) {
+						try (BufferedWriter writer = Files.newBufferedWriter(TRANSACTIONFILEPATH,
+								StandardOpenOption.APPEND)) {
+
+							// Append the String to the end of the file
 							writer.write(recordBuilder);
 
-							c.callBack("Check-in SUCCESS for family member. NRIC : "
+							// Perform a callback to inform the user of the result.
+							clientCallBack.callBack("Check-in SUCCESS for family member. NRIC : "
 									+ checkInTransactionList.get(counter).getNric());
 
 						} catch (IOException e) {
@@ -218,8 +240,11 @@ public class SafeEntryUserimpl extends java.rmi.server.UnicastRemoteObject imple
 
 					}
 
-					c.callBack("Group Check-in for all members SUCCESS.");
-				} catch (java.rmi.RemoteException e) {
+					// Perform a callback to inform the user of the result.
+					clientCallBack.callBack("Group Check-in for all members SUCCESS.");
+
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
 			}
@@ -229,72 +254,82 @@ public class SafeEntryUserimpl extends java.rmi.server.UnicastRemoteObject imple
 
 	}
 
+	/**
+	 * Allow users to perform group check out. Store records in
+	 * TraceTogetherTransaction.csv file.
+	 * 
+	 * @param checkInTransactionList list of Transactions object contain NRIC, Name,
+	 *                               Location
+	 * @param client                 RMIClientIntf object for callback
+	 */
 	@Override
-	public void groupCheckOut(RMIClientIntf client, ArrayList<Transactions> checkOutTransaction)
+	public void groupCheckOut(RMIClientIntf client, ArrayList<Transactions> checkOutTransactionList)
 			throws RemoteException {
-		c = client;
+		clientCallBack = client;
 
 		Thread thread = new Thread(new Runnable() {
 
 			@Override
 			public void run() {
-				Random rg = new Random();
-				int timer = rg.nextInt(5000);
 				try {
-					for (int counter = 0; counter < checkOutTransaction.size(); counter++) {
+					for (int counter = 0; counter < checkOutTransactionList.size(); counter++) {
 
-						// Set the Transactions Object Type and CheckInTime
-						checkOutTransaction.get(counter).setType("Group check-in");
+						// Set the Transactions object Type.
+						checkOutTransactionList.get(counter).setType(GROUPCHECKINTYPE);
 
-//						Path p = Paths.get("./filename.csv");
-						Charset charset = StandardCharsets.UTF_8;
+						// Create String check in record based on the transaction requirements
+						String checkinRecord = checkOutTransactionList.get(counter).getNric() + ";"
+								+ checkOutTransactionList.get(counter).getName() + ";"
+								+ checkOutTransactionList.get(counter).getType() + ";"
+								+ checkOutTransactionList.get(counter).getLocation() + ";null;";
 
-						String checkinRecord = checkOutTransaction.get(counter).getNric() + ";"
-								+ checkOutTransaction.get(counter).getName() + ";"
-								+ checkOutTransaction.get(counter).getType() + ";"
-								+ checkOutTransaction.get(counter).getLocation() + ";null;";
-
-						String content = "";
+						// Store the file content as a string
+						String transactionContent = "";
 						try {
-							content = new String(Files.readAllBytes(transactionFilePath), charset);
-						} catch (IOException e2) {
+							transactionContent = new String(Files.readAllBytes(TRANSACTIONFILEPATH), CHARSET);
+						} catch (IOException e) {
 							// TODO Auto-generated catch block
-							e2.printStackTrace();
+							e.printStackTrace();
 						}
 
-						if (content.contains(checkinRecord)) {
-							LocalDateTime now = LocalDateTime.now();
-							DateTimeFormatter format = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss");
-							String formatDateTime = now.format(format);
-							checkOutTransaction.get(counter).setCheckOutTime(formatDateTime);
+						// Find the previous record by NRIC, Name, TransactionType, Location and update
+						// the record
+						if (transactionContent.contains(checkinRecord)) {
 
-							String recordBuilder = checkOutTransaction.get(counter).getNric() + ";"
-									+ checkOutTransaction.get(counter).getName() + ";"
-									+ checkOutTransaction.get(counter).getType() + ";"
-									+ checkOutTransaction.get(counter).getLocation() + ";"
-									+ checkOutTransaction.get(counter).getCheckOutTime() + ";";
-							content = content.replaceAll(checkinRecord, recordBuilder);
+							// Set the Transactions object CheckOutTime
+							checkOutTransactionList.get(counter)
+									.setCheckOutTime(LocalDateTime.now().format(DATETIMEFORMAT));
+
+							// Create a new String to be updated into the CSV
+							String recordBuilder = checkOutTransactionList.get(counter).getNric() + ";"
+									+ checkOutTransactionList.get(counter).getName() + ";"
+									+ checkOutTransactionList.get(counter).getType() + ";"
+									+ checkOutTransactionList.get(counter).getLocation() + ";"
+									+ checkOutTransactionList.get(counter).getCheckOutTime() + ";";
+
+							// Replace (update) the transaction to includes the checkout time
+							transactionContent = transactionContent.replaceAll(checkinRecord, recordBuilder);
 							try {
-								Files.write(transactionFilePath, content.getBytes(charset));
-								c.callBack("Check-out SUCCESS. NRIC : " + checkOutTransaction.get(counter).getNric());
-							} catch (java.rmi.RemoteException e) {
+
+								// Update the file
+								Files.write(TRANSACTIONFILEPATH, transactionContent.getBytes(CHARSET));
+
+								// Perform a callback to inform the user of the result.
+								clientCallBack.callBack(
+										"Check-out SUCCESS. NRIC : " + checkOutTransactionList.get(counter).getNric());
+							} catch (IOException e) {
+								// TODO Auto-generated catch block
 								e.printStackTrace();
-							} catch (UnsupportedEncodingException e1) {
-								// TODO Auto-generated catch block
-								e1.printStackTrace();
-							} catch (FileNotFoundException e1) {
-								// TODO Auto-generated catch block
-								e1.printStackTrace();
-							} catch (IOException e1) {
-								// TODO Auto-generated catch block
-								e1.printStackTrace();
 							}
 
 						} else {
 							try {
-								c.callBack("Check-out FAILED. NRIC : " + checkOutTransaction.get(counter).getNric()
-										+ ". Please try again.");
-							} catch (RemoteException e) {
+
+								// Perform a callback to inform the user of the result.
+								clientCallBack.callBack("Check-out FAILED. NRIC : "
+										+ checkOutTransactionList.get(counter).getNric() + ". Please try again.");
+
+							} catch (IOException e) {
 								// TODO Auto-generated catch block
 								e.printStackTrace();
 							}
@@ -302,8 +337,10 @@ public class SafeEntryUserimpl extends java.rmi.server.UnicastRemoteObject imple
 
 					}
 
-					c.callBack("Group Check-out for all members SUCCESS.");
-				} catch (java.rmi.RemoteException e) {
+					// Perform a callback to inform the user of the result.
+					clientCallBack.callBack("Group Check-out for all members SUCCESS.");
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
 			}
@@ -313,27 +350,34 @@ public class SafeEntryUserimpl extends java.rmi.server.UnicastRemoteObject imple
 
 	}
 
+	/**
+	 * Allow users to view history. Reads records in TraceTogetherTransaction.csv
+	 * file.
+	 * 
+	 * @param user   Users object contain NRIC, Name
+	 * @param client RMIClientIntf object for callback
+	 */
 	@Override
-	public void viewHistory(RMIClientIntf client, Users userToFind) throws RemoteException {
-		// TODO Auto-generated method stub
-		c = client;
+	public void viewHistory(RMIClientIntf client, Users user) throws RemoteException {
+
+		clientCallBack = client;
 
 		Thread thread = new Thread(new Runnable() {
 
 			public void run() {
-				Random rg = new Random();
-				int timer = rg.nextInt(5000);
-				boolean inside = false;
+				boolean found = false;
 
-
+				// Create a buffer reader to store the file
 				BufferedReader bufReader = null;
 				try {
-					bufReader = new BufferedReader(new FileReader(transactionFilePath.toString()));
+					bufReader = new BufferedReader(new FileReader(TRANSACTIONFILEPATH.toString()));
 				} catch (FileNotFoundException e2) {
 					// TODO Auto-generated catch block
 					e2.printStackTrace();
 				}
-				ArrayList<String> listOfLines = new ArrayList<>();
+
+				// Save each line of Transaction for reading and updating
+				ArrayList<String> transactionStringList = new ArrayList<>();
 				String line = null;
 				try {
 					line = bufReader.readLine();
@@ -342,7 +386,7 @@ public class SafeEntryUserimpl extends java.rmi.server.UnicastRemoteObject imple
 					e1.printStackTrace();
 				}
 				while (line != null) {
-					listOfLines.add(line);
+					transactionStringList.add(line);
 					try {
 						line = bufReader.readLine();
 					} catch (IOException e) {
@@ -356,28 +400,40 @@ public class SafeEntryUserimpl extends java.rmi.server.UnicastRemoteObject imple
 					// TODO Auto-generated catch block
 					e1.printStackTrace();
 				}
-				String recordsToFind = userToFind.getNric() + ";" + userToFind.getName() + ";";
-				for (int i = 0; i < listOfLines.size(); i++) {
-					if (listOfLines.get(i).contains(recordsToFind)) {
-						inside = true;
-						
 
-						
-						String[] res=listOfLines.get(i).split("[;]", 0);
-						
+				// Iterate through the list to find existing records
+				String userRecord = user.getNric() + ";" + user.getName() + ";";
+				for (int i = 0; i < transactionStringList.size(); i++) {
+					if (transactionStringList.get(i).contains(userRecord)) {
+						found = true;
+
+						// Split the transactionStringList with the delimiter ;
+						String[] recordFound = transactionStringList.get(i).split("[;]", 0);
+
 						try {
-							
-							c.callBack("Location: "+res[3]+" Check-in time: "+res[5]+" Check-out time: "+res[4]);
-						} catch (RemoteException e) {
+
+							String location = recordFound[3];
+							String checkInTime = recordFound[5];
+							String checkOutTime = recordFound[4];
+							String userHistory = "\nLocation: " + location + " Check-in time: " + checkInTime
+									+ " Check-out time: " + checkOutTime;
+
+							// Returns the list of history through a callback.
+							clientCallBack.callBack(userHistory);
+
+						} catch (IOException e) {
 							// TODO Auto-generated catch block
 							e.printStackTrace();
 						}
 					}
 				}
 
-				if (!inside) {
+				if (!found) {
 					try {
-						c.callBack("No records found. Please try again.");
+
+						// Perform a callback to inform the user of the result.
+						clientCallBack.callBack("No records found. Please try again.");
+
 					} catch (RemoteException e) {
 						// TODO Auto-generated catch block
 						e.printStackTrace();
@@ -390,10 +446,15 @@ public class SafeEntryUserimpl extends java.rmi.server.UnicastRemoteObject imple
 		return;
 	}
 
+	/**
+	 * Allow clients to registered as connected clients.
+	 * 
+	 * @param clientNRIC    Client's NRIC client
+	 * @param RMIClientIntf object for callback
+	 */
 	@Override
-	public void registerClient(String clientNRIC, RMIClientIntf client) throws RemoteException  {
-		clientMap.put(clientNRIC,client);
-		
+	public void registerClient(String clientNRIC, RMIClientIntf client) throws RemoteException {
+		connectClients.put(clientNRIC, client);
 	}
 
 }

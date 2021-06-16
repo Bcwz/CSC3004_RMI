@@ -18,11 +18,11 @@ public class SafeEntryServer {
 		try {
 			// For SafeEntry Normal users
 
-			SafeEntryUser SEU = new SafeEntryUserimpl();
+			SafeEntryUser SEU = new SafeEntryUserImpl();
 			Naming.rebind("rmi://localhost:" + port + "/SafeEntryService", SEU);
 
 			// For SafeEntryOfficer
-			SafeEntryOfficer SEO = new SafeEntryOfficerimpl();
+			SafeEntryOfficer SEO = new SafeEntryOfficerImpl();
 			Naming.rebind("rmi://localhost:" + port + "/OfficerService", SEO);
 
 			System.out.println("Server started!");
