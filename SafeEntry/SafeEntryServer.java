@@ -42,7 +42,7 @@ public class SafeEntryServer {
 	}
 
 	private void notifyListener(RMIClientIntf client, String NRIC) throws RemoteException {
-		
+
 	}
 
 	public static void main(String args[]) {

@@ -40,8 +40,9 @@ public class SafeEntryOfficerClient extends java.rmi.server.UnicastRemoteObject 
 			// Create the reference to the remote object through the remiregistry
 			SafeEntryOfficer SEOfficer = (SafeEntryOfficer) // Naming.lookup("rmi://localhost/CalculatorService");
 			Naming.lookup("rmi://" + reg_host + ":" + reg_port + "/OfficerService");
-			System.out.println("OFFICER CLIENT SUCCESS");
-	
+
+			System.out.println("~~~~~~~~~~~~~~~~ Starting Officcer TraceTogether ~~~~~~~~~~~~~~~~ ");
+
 			while (true) {
 				System.out.println(
 						"\nEnter 1 to view infected locations\nEnter 2 to declare infected COVID location\nEnter 3 to exit");
@@ -51,7 +52,7 @@ public class SafeEntryOfficerClient extends java.rmi.server.UnicastRemoteObject 
 				case 1:
 
 					SEOfficer.retrieveAllInfectedLocations(SEOC);
-		
+
 					break;
 
 				case 2:

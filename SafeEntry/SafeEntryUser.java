@@ -1,6 +1,7 @@
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+import java.rmi.RemoteException;
 import java.util.ArrayList;
 
 import classes.Transactions;
@@ -19,8 +20,8 @@ public interface SafeEntryUser extends java.rmi.Remote {
 	public void groupCheckOut(RMIClientIntf client, ArrayList<Transactions> transactionList)
 			throws java.rmi.RemoteException;
 
-	public String viewHistory(RMIClientIntf client, Users userToFind) throws java.rmi.RemoteException;
-	
-	//public void officerCallBack (RMIClientIntf client) throws java.rmi.RemoteException;
+	public void viewHistory(RMIClientIntf client, Users userToFind) throws java.rmi.RemoteException;
+
+	public void registerClient(String clientNRIC, RMIClientIntf client) throws java.rmi.RemoteException;
 
 }

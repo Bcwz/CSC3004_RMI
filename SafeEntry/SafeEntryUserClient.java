@@ -1,9 +1,5 @@
 /*
-	Code: Calculator client		calculatorClient.java
-	Date: 10th October 2000
-
-	Simple client program that remotely calls a set of arithmetic
-	methods available on the remote calculatorimpl object
+	Code: Safe Entry User Client	
 
 */
 
@@ -27,16 +23,16 @@ public class SafeEntryUserClient extends java.rmi.server.UnicastRemoteObject imp
 	final static String nricRegex = "^[STFG]\\d{7}[A-Z]$";
 
 	public SafeEntryUserClient() throws RemoteException {
-		
+
 	}
 
 	public void callBack(String s) throws java.rmi.RemoteException {
 		System.out.println("\nServer callback message: " + s + "\n");
 	}
-	
+
 	public static void officerCallBackClient(String message) {
 		System.out.println(message);
-		
+
 	}
 
 	public static void main(String[] args) throws UnsupportedEncodingException, FileNotFoundException, IOException {
@@ -53,72 +49,57 @@ public class SafeEntryUserClient extends java.rmi.server.UnicastRemoteObject imp
 
 		try {
 
+			// creation of client object
 			SafeEntryUserClient SEC = new SafeEntryUserClient();
 
 			// Create the reference to the remote object through the remiregistry
 			SafeEntryUser SEUser = (SafeEntryUser) Naming
 					.lookup("rmi://" + reg_host + ":" + reg_port + "/SafeEntryService");
 
+			// User input variables and the objects
 			int choice = 0;
 			String clientName = "", clientNRIC = "", clientLocation = "", familyMemberName = "", familyMemberNRIC = "";
 			Transactions transactionObject = new Transactions();
 			FamilyMembers FamilyMemberObject = new FamilyMembers();
 			ArrayList<FamilyMembers> familyMembersList = new ArrayList<FamilyMembers>();
 			ArrayList<Transactions> familyTransactionList = new ArrayList<Transactions>();
-			ArrayList<Transactions> clientTransactionList = new ArrayList<Transactions>();
+			
 
+			// Starting the application, reads user inputs
 			System.out.println("~~~~~~~~~~~~~~~~ Starting TraceTogether ~~~~~~~~~~~~~~~~ ");
+			System.out.print("\nEnter name: ");
+			clientName = cc.nextLine();
+			clientNRIC = "";
+			while (!clientNRIC.matches(nricRegex)) {
+				System.out.print("Enter NRIC: ");
+				clientNRIC = cc.nextLine();
+			}
+			System.out.print("Enter location: ");
+			clientLocation = cc.nextLine();
+		
+
+//			System.out.println("USER CHECKED IN: " + connectedClients);
 
 			while (true) {
 
 				System.out.println(
-						"\n\nEnter 1 for Self Check-in\nEnter 2 for Self Check-out\nEnter 3 for Group Check-in\nEnter 4 for Group Check-out\nEnter 5 to view history\nEnter 6 to view possible exposure\nEnter 7 to add new family member\nEnter 8 to delete existing family member\nEnter 9 to exit");
+						"\n\nEnter 1 for Self Check-in\nEnter 2 for Self Check-out\nEnter 3 for Group Check-in\nEnter 4 for Group Check-out\nEnter 5 to view history\nEnter 6 to add new family member\nEnter 7 to delete existing family member\nEnter 8 to exit");
 				choice = cc.nextInt();
 
 				switch (choice) {
 				case 1:
-					/*
-					 * client.add("Gideon was here noob");
-					 * System.out.println(client.getCheckinListener());
-					 */
 
 					System.out.println("\nSelf Check-in selected!\n");
-					cc.nextLine();
-					System.out.print("\nEnter name: ");
-					clientName = cc.nextLine();
-					clientNRIC = "";
-					while (!clientNRIC.matches(nricRegex)) {
-						System.out.print("Enter NRIC: ");
-						clientNRIC = cc.nextLine();
-					}
-					System.out.print("Enter location: ");
-					clientLocation = cc.nextLine();
-
 					transactionObject = new Transactions(clientName, clientNRIC, clientLocation);
-
 					SEUser.selfCheckIn(SEC, transactionObject);
 
-					// add listener to add the user to the user list
 					break;
 				case 2:
 
 					System.out.println("\nSelf Check-out selected!\n");
-					cc.nextLine();
-					System.out.print("\nEnter name: ");
-					clientName = cc.nextLine();
-					clientNRIC = "";
-					while (!clientNRIC.matches(nricRegex)) {
-						System.out.print("Enter NRIC: ");
-						clientNRIC = cc.nextLine();
-					}
-					System.out.print("Enter location: ");
-					clientLocation = cc.nextLine();
-
 					transactionObject = new Transactions(clientName, clientNRIC, clientLocation);
-
 					SEUser.selfCheckOut(SEC, transactionObject);
 
-					// remove the user
 					break;
 
 				case 3:
@@ -130,7 +111,7 @@ public class SafeEntryUserClient extends java.rmi.server.UnicastRemoteObject imp
 						familyTransactionList.removeAll(familyTransactionList);
 						for (int counter = 0; counter < familyMembersList.size(); counter++) {
 							familyTransactionList.add(new Transactions(familyMembersList.get(counter).getName(),
-									familyMembersList.get(counter).getNric(), "Compass One"));
+									familyMembersList.get(counter).getNric(), clientLocation));
 						}
 
 					}
@@ -139,7 +120,12 @@ public class SafeEntryUserClient extends java.rmi.server.UnicastRemoteObject imp
 					break;
 
 				case 4:
-					SEUser.groupCheckOut(SEC, familyTransactionList);
+					if (familyMembersList.isEmpty()) {
+						System.out.println("No family member found. Please add one family member.");
+					} else {
+						SEUser.groupCheckOut(SEC, familyTransactionList);
+					}
+
 					break;
 
 				case 5:
@@ -149,19 +135,7 @@ public class SafeEntryUserClient extends java.rmi.server.UnicastRemoteObject imp
 
 					break;
 
-				case 6://
-
-//					System.out.println("\nView possible exposure selected!\n");
-//					message = userController.notifyUser(loginUser, TransactionsCollection,
-//							infectedLocationsCollection);
-//					if (message.equals("")) {
-//						System.out.print("No possible exposures.\n");
-//					} else {
-//						System.out.println("\n------------- Possible exposure -------------\n" + message);
-//					}
-					break;
-
-				case 7:
+				case 6:
 					// add family members to the arraylist of family members
 					// does not need any invocation of methods, store as local variable
 					cc.nextLine();
@@ -182,7 +156,7 @@ public class SafeEntryUserClient extends java.rmi.server.UnicastRemoteObject imp
 						System.out.println("Family member added sucessfully");
 					}
 					break;
-				case 8:
+				case 7:
 					System.out.println("\nDelete family member selected");
 
 					if (familyMembersList.isEmpty()) {
@@ -201,20 +175,8 @@ public class SafeEntryUserClient extends java.rmi.server.UnicastRemoteObject imp
 					}
 					break;
 
-				case 9:
-
-					ArrayList<String> ListenerArray = SafeEntryUserimpl.getCheckinArray();
-					int count = 0;
-					for (int i = 0; i < ListenerArray.size(); i++) {
-						if (ListenerArray.get(i).equals(clientNRIC)) {
-							count =i;
-						}
-
-					}
-					
-					ListenerArray.remove(count);
-					System.out.println("CLIENT LISTENER ARRAY LIST : " + ListenerArray);
-
+				case 8:
+//					connectedClients.remove(clientNRIC);
 					System.out.println("Exiting");
 					System.exit(0);
 

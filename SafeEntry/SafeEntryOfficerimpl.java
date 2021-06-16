@@ -20,6 +20,8 @@ import classes.Transactions;
 
 public class SafeEntryOfficerimpl extends java.rmi.server.UnicastRemoteObject implements SafeEntryOfficer {
 	private RMIClientIntf c;
+	private static final Path transactionFilePath =  Paths.get("./TraceTogetherTransaction.csv");
+	private static final Path infectedLocationsFilePath =  Paths.get("./TraceTogetherInfectedLocations.csv");
 
 	protected SafeEntryOfficerimpl() throws RemoteException {
 		super();
@@ -37,11 +39,9 @@ public class SafeEntryOfficerimpl extends java.rmi.server.UnicastRemoteObject im
 			public void run() {
 
 
-				String p = "./infected.txt";
-
 				BufferedReader bufReader = null;
 				try {
-					bufReader = new BufferedReader(new FileReader(p));
+					bufReader = new BufferedReader(new FileReader(infectedLocationsFilePath.toFile()));
 				} catch (FileNotFoundException e2) {
 					// TODO Auto-generated catch block
 					e2.printStackTrace();
@@ -66,18 +66,29 @@ public class SafeEntryOfficerimpl extends java.rmi.server.UnicastRemoteObject im
 				for (int i = 0; i < listOfLines.size(); i++) {
 
 					try {
-						c.callBack(listOfLines.get(i));
+						
+						String[] res=listOfLines.get(i).split("[;]", 0);
+						c.callBack("Location: "+res[0]+" Check-in time: "+res[2]+" Check-out time: "+res[1]);
+						
 					} catch (RemoteException e) {
 						// TODO Auto-generated catch block
 						e.printStackTrace();
 					}
 
 				}
-				
-				ArrayList<String> ListenerArray =  SafeEntryUserimpl.getCheckinArray();
-				System.out.println("CLIENT LISTENER ARRAY LIST : " + ListenerArray);
+
+				if(listOfLines.isEmpty()) {
+					try {
+						c.callBack("No record found. Please try again.");
+					} catch (RemoteException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+				}
+
 				
 
+				
 			}
 		});
 		thread.start();
@@ -97,11 +108,11 @@ public class SafeEntryOfficerimpl extends java.rmi.server.UnicastRemoteObject im
 				Random rg = new Random();
 				int timer = rg.nextInt(5000);
 
-				String recordBuilder =  location.getLocation() + ";"
-						+ location.getCheckOutTime() + ";" + location.getCheckInTime() + ";\n";
-				Path p = Paths.get("./infected.txt");
+				String recordBuilder = location.getLocation() + ";" + location.getCheckOutTime() + ";"
+						+ location.getCheckInTime() + ";\n";
+//				Path p = Paths.get("./infected.txt");
 
-				try (BufferedWriter writer = Files.newBufferedWriter(p, StandardOpenOption.APPEND)) {
+				try (BufferedWriter writer = Files.newBufferedWriter(infectedLocationsFilePath, StandardOpenOption.APPEND)) {
 					writer.write(recordBuilder);
 					c.callBack("Location added SUCCESS. Location: " + location.getLocation());
 				} catch (java.rmi.RemoteException e) {
@@ -128,153 +139,155 @@ public class SafeEntryOfficerimpl extends java.rmi.server.UnicastRemoteObject im
 			throws RemoteException, UnsupportedEncodingException, FileNotFoundException, IOException {
 		// Get the list of infected location, checkin&checkout
 
-				// read the infected location first
+		// read the infected location first
 
-				// TODO Auto-generated method stub
-				c = client;
+		// TODO Auto-generated method stub
+		c = client;
 
-				Thread thread = new Thread(new Runnable() {
+		Thread thread = new Thread(new Runnable() {
 
-					public void run() {
+			public void run() {
 
-						String transactionFilePath = "./filename.txt";
-						String infectedFilePath = "./infected.txt";
-						DateTimeFormatter fmt = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss");
+//				String transactionFilePath = "./filename.txt";
+//				String infectedFilePath = "./infected.txt";
+				DateTimeFormatter fmt = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss");
 
-						BufferedReader transactionFileBuffer = null;
-						BufferedReader infectedFileBuffer = null;
-						try {
-							transactionFileBuffer = new BufferedReader(new FileReader(transactionFilePath));
-							infectedFileBuffer = new BufferedReader(new FileReader(infectedFilePath));
-						} catch (FileNotFoundException e2) {
-							// TODO Auto-generated catch block
-							e2.printStackTrace();
-						}
+				BufferedReader transactionFileBuffer = null;
+				BufferedReader infectedFileBuffer = null;
+				try {
+					transactionFileBuffer = new BufferedReader(new FileReader(transactionFilePath.toString()));
+					infectedFileBuffer = new BufferedReader(new FileReader(infectedLocationsFilePath.toString()));
+				} catch (FileNotFoundException e2) {
+					// TODO Auto-generated catch block
+					e2.printStackTrace();
+				}
 //						ArrayList<String> transactionRecords = new ArrayList<>();
 //						ArrayList<String> infectedLocationRecords = new ArrayList<>();
-						String transactionLine = null, infectedLocationLine = null;
-						try {
-							transactionLine = transactionFileBuffer.readLine();
-							infectedLocationLine = infectedFileBuffer.readLine();
-						} catch (IOException e1) {
-							// TODO Auto-generated catch block
-							e1.printStackTrace();
-						}
+				String transactionLine = null, infectedLocationLine = null;
+				try {
+					transactionLine = transactionFileBuffer.readLine();
+					infectedLocationLine = infectedFileBuffer.readLine();
+				} catch (IOException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
 
-						ArrayList<Transactions> transactionList = new ArrayList<Transactions>();
-						ArrayList<InfectedLocations> infectedLocationList = new ArrayList<InfectedLocations>();
+				ArrayList<Transactions> transactionList = new ArrayList<Transactions>();
+				ArrayList<InfectedLocations> infectedLocationList = new ArrayList<InfectedLocations>();
 
-						while (transactionLine != null) {
+				while (transactionLine != null) {
 //							transactionRecords.add(transactionLine);					
-							String[] res = transactionLine.split("[;]", 0);
-							Transactions transaction = new Transactions(res[0], res[1], res[2], res[3], res[4], res[5]);
+					String[] res = transactionLine.split("[;]", 0);
+					Transactions transaction = new Transactions(res[0], res[1], res[2], res[3], res[4], res[5]);
 //							System.out.println(res[0]+ res[1]+ res[2]+ res[3]+res[4]+res[5]);
-							transactionList.add(transaction);
+					transactionList.add(transaction);
 
-							try {
-								transactionLine = transactionFileBuffer.readLine();
-							} catch (IOException e) {
-								// TODO Auto-generated catch block
-								e.printStackTrace();
-							}
-						}
+					try {
+						transactionLine = transactionFileBuffer.readLine();
+					} catch (IOException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+				}
 
-						while (infectedLocationLine != null) {
+				while (infectedLocationLine != null) {
 
 //							transactionRecords.add(transactionLine);					
-							String[] res = infectedLocationLine.split("[;]", 0);
-							InfectedLocations InfectedLocation = new InfectedLocations(res[0], res[2], res[1]);
+					String[] res = infectedLocationLine.split("[;]", 0);
+					InfectedLocations InfectedLocation = new InfectedLocations(res[0], res[2], res[1]);
 //							System.out.println(res[0]+ res[1]+ res[2]);
-							infectedLocationList.add(InfectedLocation);
+					infectedLocationList.add(InfectedLocation);
 
-							try {
-								infectedLocationLine = transactionFileBuffer.readLine();
-							} catch (IOException e) {
-								// TODO Auto-generated catch block
-								e.printStackTrace();
-							}
-						}
-						for (int infectedCounter = 0; infectedCounter < infectedLocationList.size(); infectedCounter++) {
+					try {
+						infectedLocationLine = transactionFileBuffer.readLine();
+					} catch (IOException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+				}
+				for (int infectedCounter = 0; infectedCounter < infectedLocationList.size(); infectedCounter++) {
 
-							for (int transCounter = 0; transCounter < transactionList.size(); transCounter++) {
+					for (int transCounter = 0; transCounter < transactionList.size(); transCounter++) {
 
-								// check the location first based on the name
-								
+						// check the location first based on the name
 
-								if (transactionList.get(transCounter).getLocation()
-										.equals(infectedLocationList.get(infectedCounter).getLocation())) {
-
+						if (transactionList.get(transCounter).getLocation()
+								.equals(infectedLocationList.get(infectedCounter).getLocation())) {
 
 //									System.out.println("Location 1: " + transactionList.get(transCounter).getLocation());
 //									System.out.println("Location 2: " + infectedLocationList.get(infectedCounter).getLocation());
-								
-									
-									
-									LocalTime locationCheckInTime = LocalDateTime
-											.parse(infectedLocationList.get(infectedCounter).getCheckInTime(), fmt)
-											.toLocalTime();
-									LocalTime locationCheckOutTime = LocalDateTime
-											.parse(infectedLocationList.get(infectedCounter).getCheckOutTime(), fmt)
-											.toLocalTime();
-									LocalTime transactionTime = LocalDateTime
-											.parse(transactionList.get(transCounter).getCheckInTime(), fmt).toLocalTime();
 
-									
+							LocalTime locationCheckInTime = LocalDateTime
+									.parse(infectedLocationList.get(infectedCounter).getCheckInTime(), fmt)
+									.toLocalTime();
+							LocalTime locationCheckOutTime = LocalDateTime
+									.parse(infectedLocationList.get(infectedCounter).getCheckOutTime(), fmt)
+									.toLocalTime();
+							LocalTime transactionTime = LocalDateTime
+									.parse(transactionList.get(transCounter).getCheckInTime(), fmt).toLocalTime();
+
 //									System.out.println("locationCheckInTime: " + locationCheckInTime);
 //									System.out.println("locationCheckOutTime: " + locationCheckOutTime);
 //									System.out.println("transactionTime: " + transactionTime);
-									
-									if (transactionTime.isAfter(locationCheckInTime)
-											&& transactionTime.isBefore(locationCheckOutTime)) {
-										// Craft the notification message for every user
-										
-										System.out.println("User found: "+transactionList.get(transCounter).getName());
-										
+
+							if (transactionTime.isAfter(locationCheckInTime)
+									&& transactionTime.isBefore(locationCheckOutTime)) {
+								// Craft the notification message for every user
+
+								System.out.println("User found: " + transactionList.get(transCounter).getName());
+
+								try {
+									c.callBack("Location found!!!! FOUND PERSON: "
+											+ transactionList.get(transCounter).getName());
+								} catch (RemoteException e) {
+									// TODO Auto-generated catch block
+									e.printStackTrace();
+								}
+
+								ArrayList<String> ListenerArray = SafeEntryUserimpl.getCheckinArray();
+								System.out.println("CLIENT LISTENER ARRAY LIST : " + ListenerArray);
+
+								for (int i = 0; i < ListenerArray.size(); i++) {
+									if (ListenerArray.get(i).equals(transactionList.get(transCounter).getNric())) {
+//										System.out.println("Found : " + ListenerArray.get(i));
+//										SafeEntryUserimpl.officerCallBack("ALERT!! You might be exposed to Covid-19.");
+										RMIClientIntf intsdadsa=SafeEntryUserimpl.clientMap.get(ListenerArray.get(i));
 										try {
-											c.callBack("Location found!!!! FOUND PERSON: " +  transactionList.get(transCounter).getName());
+											intsdadsa.callBack("ALERT!! You might be exposed to Covid-19.");
 										} catch (RemoteException e) {
 											// TODO Auto-generated catch block
 											e.printStackTrace();
 										}
+										//access the var
 										
-										ArrayList<String> ListenerArray =  SafeEntryUserimpl.getCheckinArray();
-										System.out.println("CLIENT LISTENER ARRAY LIST : " + ListenerArray);
-										
-										
-										for (int i = 0; i < ListenerArray.size(); i++) {
-											if (ListenerArray.get(i).equals(transactionList.get(transCounter).getNric())) {
-												System.out.println("Found : " + ListenerArray.get(i));
-												SafeEntryUserimpl.officerCallBack("ALERT!! You might be exposed to Covid-19.");
-											}
-											else {
-												System.out.println("KNN");
-												System.out.println("Found 1: " + ListenerArray.get(i));
-												System.out.println("Found 2: " + transactionList.get(transCounter).getNric());
-												
-											}
-
-										}
-
 									} else {
-										try {
-											c.callBack("Location NOTNOTNOTT found!!!!" );
-										} catch (RemoteException e) {
-											// TODO Auto-generated catch block
-											e.printStackTrace();
-										}
+										System.out.println("Found 1: " + ListenerArray.get(i));
+										System.out.println("Found 2: " + transactionList.get(transCounter).getNric());
 
 									}
 
 								}
 
+							} else {
+								try {
+									c.callBack("Location NOTNOTNOTT found!!!!");
+								} catch (RemoteException e) {
+									// TODO Auto-generated catch block
+									e.printStackTrace();
+								}
+
 							}
 
 						}
+
 					}
-				});
-				thread.start();
-				return;
-		
+
+				}
+			}
+		});
+		thread.start();
+		return;
+
 	}
 
 }
