@@ -32,7 +32,7 @@ import classes.Users;
 public class SafeEntryUserimpl extends java.rmi.server.UnicastRemoteObject implements SafeEntryUser {
 
 	private RMIClientIntf c;
-	private ArrayList<String> checkinListener = new ArrayList();
+	public ArrayList<String> checkinListener = new ArrayList();
 
 	// Implementations must have an explicit constructor
 	// in order to declare the RemoteException exception
@@ -138,7 +138,10 @@ public class SafeEntryUserimpl extends java.rmi.server.UnicastRemoteObject imple
 					content = content.replaceAll(checkinRecord, recordBuilder);
 					try {
 						Files.write(p, content.getBytes(charset));
-						
+						//Add NRIC to ArrayList, ArrayList shown on Server terminal
+						checkinListener.remove(checkOutTransaction.getNric());
+						System.out.println("USER CHECK OUT: " + checkinListener);
+
 						c.callBack("Check-out SUCCESS. NRIC : " + checkOutTransaction.getNric());
 					} catch (java.rmi.RemoteException e) {
 						e.printStackTrace();
@@ -198,7 +201,7 @@ public class SafeEntryUserimpl extends java.rmi.server.UnicastRemoteObject imple
 								+ checkInTransactionList.get(counter).getCheckOutTime() + ";"
 								+ checkInTransactionList.get(counter).getCheckInTime() + ";\n";
 						Path p = Paths.get(
-								"C:\\Users\\Bernie\\OneDrive\\Desktop\\cloud\\projectrmi\\SafeEntry\\filename.txt");
+								"./filename.txt");
 
 						try (BufferedWriter writer = Files.newBufferedWriter(p, StandardOpenOption.APPEND)) {
 							writer.write(recordBuilder);

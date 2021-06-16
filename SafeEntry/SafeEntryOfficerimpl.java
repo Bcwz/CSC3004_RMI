@@ -39,7 +39,7 @@ public class SafeEntryOfficerimpl extends java.rmi.server.UnicastRemoteObject im
 				int timer = rg.nextInt(5000);
 				boolean inside = false;
 
-				String p = "C:\\Users\\Bernie\\OneDrive\\Desktop\\cloud\\projectrmi\\SafeEntry\\infected.txt";
+				String p = "./infected.txt";
 
 				BufferedReader bufReader = null;
 				try {
@@ -97,11 +97,11 @@ public class SafeEntryOfficerimpl extends java.rmi.server.UnicastRemoteObject im
 
 				String recordBuilder =  location.getLocation() + ";"
 						+ location.getCheckInTime() + ";" + location.getCheckOutTime() + ";\n";
-				Path p = Paths.get("C:\\Users\\Bernie\\OneDrive\\Desktop\\cloud\\projectrmi\\SafeEntry\\infected.txt");
+				Path p = Paths.get("./infected.txt");
 
 				try (BufferedWriter writer = Files.newBufferedWriter(p, StandardOpenOption.APPEND)) {
 					writer.write(recordBuilder);
-					c.callBack("Locateion added SUCCESS. Location: " + location.getLocation());
+					c.callBack("Location added SUCCESS. Location: " + location.getLocation());
 				} catch (java.rmi.RemoteException e) {
 					e.printStackTrace();
 				} catch (UnsupportedEncodingException e1) {
@@ -134,12 +134,9 @@ public class SafeEntryOfficerimpl extends java.rmi.server.UnicastRemoteObject im
 				Thread thread = new Thread(new Runnable() {
 
 					public void run() {
-						Random rg = new Random();
-						int timer = rg.nextInt(5000);
-						boolean inside = false;
 
-						String transactionFilePath = "C:\\Users\\Bernie\\OneDrive\\Desktop\\cloud\\projectrmi\\SafeEntry\\filename.txt";
-						String infectedFilePath = "C:\\Users\\Bernie\\OneDrive\\Desktop\\cloud\\projectrmi\\SafeEntry\\infected.txt";
+						String transactionFilePath = "./filename.txt";
+						String infectedFilePath = "./infected.txt";
 						DateTimeFormatter fmt = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss");
 
 						BufferedReader transactionFileBuffer = null;
