@@ -2,7 +2,7 @@ Step 1: Open SafeEntry Directory.
 CLI Command: CD SafeEntry
 
 Step 2: Compile Java JAR files.
-CLI Command: javac --class-path ";jars/*;classes/*" SafeEntryServer.java SafeEntryUserClient.java
+CLI Command: javac */.java
 
 Step 3: Run SafeEntryServer class
 CLI Command: java -classpath ";jars/*;classes/*" SafeEntryServer 
