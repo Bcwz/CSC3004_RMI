@@ -52,7 +52,7 @@ public class SafeEntryOfficerClient extends java.rmi.server.UnicastRemoteObject 
 
 			while (true) {
 				System.out.println(
-						"\nEnter 1 to view infected locations\nEnter 2 to declare infected COVID location\nEnter 3 to log out");
+						"\nEnter 1 to view infected locations\nEnter 2 to declare infected COVID location\nEnter 3 to exit");
 
 				int choice = cc.nextInt();
 				switch (choice) {
@@ -83,7 +83,13 @@ public class SafeEntryOfficerClient extends java.rmi.server.UnicastRemoteObject 
 
 					SEOfficer.addLocation(SEOC, infectedLocationObj);
 
+					SEOfficer.notifyClient(SEOC);
 					break;
+					
+
+				case 3:
+					System.out.println("Exiting");
+					System.exit(0);
 
 				default:
 					break;

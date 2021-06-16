@@ -11,4 +11,10 @@ public interface SafeEntryOfficer extends java.rmi.Remote {
 
 	public void addLocation(RMIClientIntf client, InfectedLocations location)
 			throws java.rmi.RemoteException, UnsupportedEncodingException, FileNotFoundException, IOException;
+	
+	public void notifyClient(RMIClientIntf client)
+			throws java.rmi.RemoteException, UnsupportedEncodingException, FileNotFoundException, IOException;
+	
+	
+	
 }

@@ -18,6 +18,15 @@ public class Transactions implements Serializable {
 		this.location = location;
 	}
 
+	public Transactions(String nric, String name, String type, String location, String checkOutTime, String checkInTime) {
+		this.name = name;
+		this.nric = nric;
+		this.location = location;
+		this.type=type;
+		this.checkInTime=checkInTime;
+		this.checkOutTime=checkInTime;
+	}
+	
 	public Transactions() {
 
 	}

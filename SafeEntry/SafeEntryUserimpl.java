@@ -32,6 +32,7 @@ import classes.Users;
 public class SafeEntryUserimpl extends java.rmi.server.UnicastRemoteObject implements SafeEntryUser {
 
 	private RMIClientIntf c;
+	private ArrayList<String> checkinListener = new ArrayList();
 
 	// Implementations must have an explicit constructor
 	// in order to declare the RemoteException exception
@@ -58,17 +59,21 @@ public class SafeEntryUserimpl extends java.rmi.server.UnicastRemoteObject imple
 				checkInTransaction.setCheckInTime(formatDateTime);
 				checkInTransaction.setCheckOutTime(null);
 
-				String recordBuilder = "NRIC: " + checkInTransaction.getNric() + "; Name: "
-						+ checkInTransaction.getName() + "; Check-in Type: " + checkInTransaction.getType()
-						+ "; Location: " + checkInTransaction.getLocation() + "; Check-out time: "
-						+ checkInTransaction.getCheckOutTime() + "; Check-in time: "
-						+ checkInTransaction.getCheckInTime() + "\n";
-				Path p = Paths.get("C:\\Users\\Bernie\\OneDrive\\Desktop\\cloud\\projectrmi\\SafeEntry\\filename.txt");
+				String recordBuilder = checkInTransaction.getNric() + ";"
+						+ checkInTransaction.getName() + ";" + checkInTransaction.getType()
+						+ ";" + checkInTransaction.getLocation() + ";"
+						+ checkInTransaction.getCheckOutTime() + ";"
+						+ checkInTransaction.getCheckInTime() + ";\n";
+				
+				Path p = Paths.get("./filename.txt");
 
 				try (BufferedWriter writer = Files.newBufferedWriter(p, StandardOpenOption.APPEND)) {
 					writer.write(recordBuilder);
 
 					c.callBack("Check-in SUCCESS. NRIC : " + checkInTransaction.getNric());
+					//Add NRIC to ArrayList, ArrayList shown on Server terminal
+					checkinListener.add(checkInTransaction.getNric());
+					System.out.println("USER CHECKED IN: " + checkinListener);
 
 				} catch (java.rmi.RemoteException e) {
 					e.printStackTrace();
@@ -99,12 +104,15 @@ public class SafeEntryUserimpl extends java.rmi.server.UnicastRemoteObject imple
 				int timer = rg.nextInt(5000);
 
 				checkOutTransaction.setType("Self check-in");
-				Path p = Paths.get("C:\\Users\\Bernie\\OneDrive\\Desktop\\cloud\\projectrmi\\SafeEntry\\filename.txt");
+				Path p = Paths.get("./filename.txt");
 				Charset charset = StandardCharsets.UTF_8;
 
-				String checkinRecord = "NRIC: " + checkOutTransaction.getNric() + "; Name: "
-						+ checkOutTransaction.getName() + "; Check-in Type: " + checkOutTransaction.getType()
-						+ "; Location: " + checkOutTransaction.getLocation() + "; Check-out time: null";
+			
+				
+				
+				String checkinRecord = checkOutTransaction.getNric() + ";"
+						+ checkOutTransaction.getName() + ";" + checkOutTransaction.getType()
+						+ ";" + checkOutTransaction.getLocation() + ";null;";
 
 				String content = "";
 				try {
@@ -120,13 +128,17 @@ public class SafeEntryUserimpl extends java.rmi.server.UnicastRemoteObject imple
 					String formatDateTime = now.format(format);
 					checkOutTransaction.setCheckOutTime(formatDateTime);
 
-					String recordBuilder = "NRIC: " + checkOutTransaction.getNric() + "; Name: "
-							+ checkOutTransaction.getName() + "; Check-in Type: " + checkOutTransaction.getType()
-							+ "; Location: " + checkOutTransaction.getLocation() + "; Check-out time: "
-							+ checkOutTransaction.getCheckOutTime();
+					
+					
+					String recordBuilder = checkOutTransaction.getNric() + ";"
+							+ checkOutTransaction.getName() + ";" + checkOutTransaction.getType()
+							+ ";" + checkOutTransaction.getLocation() + ";"
+							+ checkOutTransaction.getCheckOutTime() + ";";
+					
 					content = content.replaceAll(checkinRecord, recordBuilder);
 					try {
 						Files.write(p, content.getBytes(charset));
+						
 						c.callBack("Check-out SUCCESS. NRIC : " + checkOutTransaction.getNric());
 					} catch (java.rmi.RemoteException e) {
 						e.printStackTrace();
@@ -178,12 +190,13 @@ public class SafeEntryUserimpl extends java.rmi.server.UnicastRemoteObject imple
 						checkInTransactionList.get(counter).setCheckInTime(formatDateTime);
 						checkInTransactionList.get(counter).setCheckOutTime(null);
 
-						String recordBuilder = "NRIC: " + checkInTransactionList.get(counter).getNric() + "; Name: "
-								+ checkInTransactionList.get(counter).getName() + "; Check-in Type: "
-								+ checkInTransactionList.get(counter).getType() + "; Location: "
-								+ checkInTransactionList.get(counter).getLocation() + "; Check-out time: "
-								+ checkInTransactionList.get(counter).getCheckOutTime() + "; Check-in time: "
-								+ checkInTransactionList.get(counter).getCheckInTime() + "\n";
+	
+						
+						String recordBuilder = checkInTransactionList.get(counter).getNric() + ";"
+								+ checkInTransactionList.get(counter).getName() + ";" + checkInTransactionList.get(counter).getType()
+								+ ";" + checkInTransactionList.get(counter).getLocation() + ";"
+								+ checkInTransactionList.get(counter).getCheckOutTime() + ";"
+								+ checkInTransactionList.get(counter).getCheckInTime() + ";\n";
 						Path p = Paths.get(
 								"C:\\Users\\Bernie\\OneDrive\\Desktop\\cloud\\projectrmi\\SafeEntry\\filename.txt");
 
@@ -229,13 +242,15 @@ public class SafeEntryUserimpl extends java.rmi.server.UnicastRemoteObject imple
 						checkOutTransaction.get(counter).setType("Group check-in");
 
 						Path p = Paths.get(
-								"C:\\Users\\Bernie\\OneDrive\\Desktop\\cloud\\projectrmi\\SafeEntry\\filename.txt");
+								"./filename.txt");
 						Charset charset = StandardCharsets.UTF_8;
 
-						String checkinRecord = "NRIC: " + checkOutTransaction.get(counter).getNric() + "; Name: "
-								+ checkOutTransaction.get(counter).getName() + "; Check-in Type: "
-								+ checkOutTransaction.get(counter).getType() + "; Location: "
-								+ checkOutTransaction.get(counter).getLocation() + "; Check-out time: null;";
+						
+
+						
+						String checkinRecord = checkOutTransaction.get(counter).getNric() + ";"
+								+ checkOutTransaction.get(counter).getName() + ";" + checkOutTransaction.get(counter).getType()
+								+ ";" + checkOutTransaction.get(counter).getLocation() + ";null;";
 
 						String content = "";
 						try {
@@ -251,11 +266,14 @@ public class SafeEntryUserimpl extends java.rmi.server.UnicastRemoteObject imple
 							String formatDateTime = now.format(format);
 							checkOutTransaction.get(counter).setCheckOutTime(formatDateTime);
 
-							String recordBuilder = "NRIC: " + checkOutTransaction.get(counter).getNric() + "; Name: "
-									+ checkOutTransaction.get(counter).getName() + "; Check-in Type: "
-									+ checkOutTransaction.get(counter).getType() + "; Location: "
-									+ checkOutTransaction.get(counter).getLocation() + "; Check-out time: "
-									+ checkOutTransaction.get(counter).getCheckOutTime();
+					
+							
+							
+							
+							String recordBuilder = checkOutTransaction.get(counter).getNric() + ";"
+									+ checkOutTransaction.get(counter).getName() + ";" + checkOutTransaction.get(counter).getType()
+									+ ";" + checkOutTransaction.get(counter).getLocation() + ";"
+									+ checkOutTransaction.get(counter).getCheckOutTime() + ";";
 							content = content.replaceAll(checkinRecord, recordBuilder);
 							try {
 								Files.write(p, content.getBytes(charset));
@@ -308,7 +326,7 @@ public class SafeEntryUserimpl extends java.rmi.server.UnicastRemoteObject imple
 				int timer = rg.nextInt(5000);
 				boolean inside = false;
 
-				String p = "C:\\Users\\Bernie\\OneDrive\\Desktop\\cloud\\projectrmi\\SafeEntry\\filename.txt";
+				String p = "./filename.txt";
 
 				BufferedReader bufReader = null;
 				try {
@@ -340,7 +358,7 @@ public class SafeEntryUserimpl extends java.rmi.server.UnicastRemoteObject imple
 					// TODO Auto-generated catch block
 					e1.printStackTrace();
 				}
-				String recordsToFind = "NRIC: " + userToFind.getNric() + "; Name: " + userToFind.getName() + ";";
+				String recordsToFind = userToFind.getNric() + ";" + userToFind.getName() + ";";
 				for (int i = 0; i < listOfLines.size(); i++) {
 					if (listOfLines.get(i).contains(recordsToFind)) {
 						inside = true;

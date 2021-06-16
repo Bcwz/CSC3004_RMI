@@ -1,6 +1,3 @@
-NRIC: S9711228B; Name: Gideon Yip; Check-in Type: Self check-in; Location: NYP; Check-out time: 16/06/2021 00:02:38; Check-in time: 16/06/2021 00:02:26
-NRIC: S1234567B; Name: Bernie; Check-in Type: Group check-in; Location: Compass One; Check-out time: 16/06/2021 00:02:53 Check-in time: 16/06/2021 00:02:51
-NRIC: S1234567B; Name: Bernie; Check-in Type: Group check-in; Location: Compass One; Check-out time: 16/06/2021 00:03:27 Check-in time: 16/06/2021 00:03:26
-NRIC: T1234567B; Name: YuXin; Check-in Type: Group check-in; Location: Compass One; Check-out time: 16/06/2021 00:03:27 Check-in time: 16/06/2021 00:03:26
-NRIC: S9711228B; Name: Gideon Yip; Check-in Type: Self check-in; Location: SIT; Check-out time: 16/06/2021 00:03:59; Check-in time: 16/06/2021 00:03:48
-NRIC: S9711228B; Name: Gideon Yip; Check-in Type: Self check-in; Location: Myhouse; Check-out time: 16/06/2021 00:18:09; Check-in time: 16/06/2021 00:17:55
+S9711228B;Gideon;Self check-in;NYP;16/06/2021 17:27:28;16/06/2021 17:27:20;
+S1234567B;Bernie;Group check-in;Compass One;16/06/2021 17:27:47;16/06/2021 17:27:47;
+T1234657B;YuXin;Group check-in;Compass One;16/06/2021 17:30:47;16/06/2021 17:30:46;

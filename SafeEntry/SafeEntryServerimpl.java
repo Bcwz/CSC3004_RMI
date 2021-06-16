@@ -7,5 +7,8 @@ public interface SafeEntryServerimpl extends Remote {
 	void addListener(String listener) throws RemoteException;
 
 	void removeListener(String listener) throws RemoteException;
+	
+	void notifyListener(String NRIC) throws RemoteException;
+	
 
 }
