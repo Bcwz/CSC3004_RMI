@@ -20,5 +20,7 @@ public interface SafeEntryUser extends java.rmi.Remote {
 			throws java.rmi.RemoteException;
 
 	public String viewHistory(RMIClientIntf client, Users userToFind) throws java.rmi.RemoteException;
+	
+	//public void officerCallBack (RMIClientIntf client) throws java.rmi.RemoteException;
 
 }

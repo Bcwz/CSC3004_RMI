@@ -30,7 +30,7 @@ import classes.Users;
 
 public class SafeEntryUserimpl extends java.rmi.server.UnicastRemoteObject implements SafeEntryUser {
 
-	private RMIClientIntf c;
+	private static RMIClientIntf c;
 	public static ArrayList<String> checkinListener = new ArrayList();
 
 	// Implementations must have an explicit constructor
@@ -42,6 +42,14 @@ public class SafeEntryUserimpl extends java.rmi.server.UnicastRemoteObject imple
 	public static ArrayList<String> getCheckinArray() {
 		return checkinListener;
 	}
+	public static void officerCallBack(String message) {
+		try {
+			c.callBack(message);
+		} catch (RemoteException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
 
 	public void selfCheckIn(RMIClientIntf client, Transactions checkInTransaction)
 			throws UnsupportedEncodingException, FileNotFoundException, IOException {
@@ -51,8 +59,6 @@ public class SafeEntryUserimpl extends java.rmi.server.UnicastRemoteObject imple
 
 			@Override
 			public void run() {
-				Random rg = new Random();
-				int timer = rg.nextInt(5000);
 
 				checkInTransaction.setType("Self check-in");
 				LocalDateTime now = LocalDateTime.now();
@@ -102,15 +108,10 @@ public class SafeEntryUserimpl extends java.rmi.server.UnicastRemoteObject imple
 		Thread thread = new Thread(new Runnable() {
 
 			public void run() {
-				Random rg = new Random();
-				int timer = rg.nextInt(5000);
 
 				checkOutTransaction.setType("Self check-in");
 				Path p = Paths.get("./filename.txt");
-				Charset charset = StandardCharsets.UTF_8;
-
-			
-				
+				Charset charset = StandardCharsets.UTF_8;				
 				
 				String checkinRecord = checkOutTransaction.getNric() + ";"
 						+ checkOutTransaction.getName() + ";" + checkOutTransaction.getType()
@@ -390,5 +391,6 @@ public class SafeEntryUserimpl extends java.rmi.server.UnicastRemoteObject imple
 		thread.start();
 		return null;
 	}
+
 
 }

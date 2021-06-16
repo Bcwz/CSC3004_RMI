@@ -244,8 +244,7 @@ public class SafeEntryOfficerimpl extends java.rmi.server.UnicastRemoteObject im
 										for (int i = 0; i < ListenerArray.size(); i++) {
 											if (ListenerArray.get(i).equals(transactionList.get(transCounter).getNric())) {
 												System.out.println("Found : " + ListenerArray.get(i));
-												//notify the client
-												
+												SafeEntryUserimpl.officerCallBack("ALERT!! You might be exposed to Covid-19.");
 											}
 											else {
 												System.out.println("KNN");

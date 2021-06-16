@@ -27,11 +27,16 @@ public class SafeEntryUserClient extends java.rmi.server.UnicastRemoteObject imp
 	final static String nricRegex = "^[STFG]\\d{7}[A-Z]$";
 
 	public SafeEntryUserClient() throws RemoteException {
-
+		
 	}
 
 	public void callBack(String s) throws java.rmi.RemoteException {
 		System.out.println("\nServer callback message: " + s + "\n");
+	}
+	
+	public static void officerCallBackClient(String message) {
+		System.out.println(message);
+		
 	}
 
 	public static void main(String[] args) throws UnsupportedEncodingException, FileNotFoundException, IOException {
