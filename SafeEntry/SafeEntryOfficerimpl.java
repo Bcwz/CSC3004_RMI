@@ -144,10 +144,11 @@ public class SafeEntryOfficerimpl extends java.rmi.server.UnicastRemoteObject im
 		// TODO Auto-generated method stub
 		c = client;
 
+		
 		Thread thread = new Thread(new Runnable() {
 
 			public void run() {
-
+				boolean inside=false;
 //				String transactionFilePath = "./filename.txt";
 //				String infectedFilePath = "./infected.txt";
 				DateTimeFormatter fmt = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss");
@@ -233,9 +234,9 @@ public class SafeEntryOfficerimpl extends java.rmi.server.UnicastRemoteObject im
 							if (transactionTime.isAfter(locationCheckInTime)
 									&& transactionTime.isBefore(locationCheckOutTime)) {
 								// Craft the notification message for every user
-
+								inside=true;
 								System.out.println("User found: " + transactionList.get(transCounter).getName());
-
+								
 								try {
 									c.callBack("Location found!!!! FOUND PERSON: "
 											+ transactionList.get(transCounter).getName());
@@ -260,29 +261,29 @@ public class SafeEntryOfficerimpl extends java.rmi.server.UnicastRemoteObject im
 										}
 										//access the var
 										
-									} else {
-										System.out.println("Found 1: " + ListenerArray.get(i));
-										System.out.println("Found 2: " + transactionList.get(transCounter).getNric());
-
 									}
 
 								}
 
-							} else {
-								try {
-									c.callBack("Location NOTNOTNOTT found!!!!");
-								} catch (RemoteException e) {
-									// TODO Auto-generated catch block
-									e.printStackTrace();
-								}
-
-							}
+							} 
 
 						}
 
 					}
 
 				}
+				
+		if(!inside) {
+
+			try {
+				c.callBack("All users are healthy. No notfication required.");
+			} catch (RemoteException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+
+				
 			}
 		});
 		thread.start();
