@@ -1,5 +1,3 @@
-
-
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.FileNotFoundException;
@@ -38,7 +36,7 @@ public class SafeEntryOfficerImpl extends java.rmi.server.UnicastRemoteObject im
 	 * @param client RMIClientIntf object for callback
 	 */
 	@Override
-	public void retrieveAllInfectedLocations(RMIClientIntf client) {
+	synchronized public void retrieveAllInfectedLocations(RMIClientIntf client) {
 
 		clientCallBack = client;
 
@@ -127,7 +125,7 @@ public class SafeEntryOfficerImpl extends java.rmi.server.UnicastRemoteObject im
 	 * @param client            RMIClientIntf object for callback
 	 */
 	@Override
-	public void addLocation(RMIClientIntf client, InfectedLocations location) {
+	synchronized public void addLocation(RMIClientIntf client, InfectedLocations location) {
 		clientCallBack = client;
 
 		Thread thread = new Thread(new Runnable() {
@@ -146,6 +144,7 @@ public class SafeEntryOfficerImpl extends java.rmi.server.UnicastRemoteObject im
 					
 					System.out.println("Infected location : " + location.getLocation() +" added to CSV");
 
+					writer.close();
 					// Perform a callback to inform the user of the result.
 					clientCallBack.callBack("Infected location added SUCCESS.\n Location: " + location.getLocation());
 				} catch (IOException e) {
@@ -168,7 +167,7 @@ public class SafeEntryOfficerImpl extends java.rmi.server.UnicastRemoteObject im
 	 * @param client RMIClientIntf object for callback
 	 */
 	@Override
-	public void notifyClient(RMIClientIntf client) {
+	synchronized  public void notifyClient(RMIClientIntf client) {
 
 		clientCallBack = client;
 
@@ -231,12 +230,29 @@ public class SafeEntryOfficerImpl extends java.rmi.server.UnicastRemoteObject im
 					infectedLocationList.add(InfectedLocation);
 
 					try {
-						infectedLocationLine = transactionFileBuffer.readLine();
+						infectedLocationLine = infectedFileBuffer.readLine();
 					} catch (IOException e) {
 						// TODO Auto-generated catch block
 						e.printStackTrace();
 					}
 				}
+				
+//				System.out.println("printing infected!!!!\n\n");
+//				  for (int counter = 0; counter < infectedLocationList.size(); counter++) { 		 
+//					  System.out.println(counter+": ");
+//			          System.out.println(infectedLocationList.get(counter).getLocation()); 		
+//			          System.out.println(infectedLocationList.get(counter).getCheckInTime()); 		
+//			          System.out.println(infectedLocationList.get(counter).getCheckOutTime()); 		
+//			      }  
+//				  
+//				  
+//					System.out.println("\n\n\nprinting transaction!!!!\n\n");
+//					  for (int counter = 0; counter < transactionList.size(); counter++) { 
+//						  System.out.println(counter+": ");
+//				          System.out.println(transactionList.get(counter).getLocation()); 		
+//				          System.out.println(transactionList.get(counter).getCheckInTime()); 		
+//				          System.out.println(transactionList.get(counter).getCheckOutTime()); 		
+//				      }  
 
 				// Iterate through both the infectedLocationList and transactionList to find for
 				// possible exposures

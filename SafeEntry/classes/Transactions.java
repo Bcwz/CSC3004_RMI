@@ -25,7 +25,7 @@ public class Transactions implements Serializable {
 		this.location = location;
 		this.type=type;
 		this.checkInTime=checkInTime;
-		this.checkOutTime=checkInTime;
+		this.checkOutTime=checkOutTime;
 	}
 	
 	public Transactions() {
