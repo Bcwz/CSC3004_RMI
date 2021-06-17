@@ -308,7 +308,7 @@ public class SafeEntryOfficerImpl extends java.rmi.server.UnicastRemoteObject im
 
 											// Returns the possible exposure notification
 											clientCallBack
-													.callBack("ALERT!! You have a possible exposure to Covid-19 at location : " + infectedLocationList.get(infectedCounter).getLocation() + "\nPlease monitor your health for 14 days starting from : " + locationCheckOutTime);
+					                          .callBack("ALERT!! You have a possible exposure to Covid-19. Location of exposure: " + transactionList.get(transCounter).getLocation()+". Please monitor your health from: " + transactionList.get(transCounter).getCheckInTime()+" till: "  +transactionTime.plusHours(336).format(DATETIMEFORMAT)+".");
 										} catch (RemoteException e) {
 											// TODO Auto-generated catch block
 											e.printStackTrace();
