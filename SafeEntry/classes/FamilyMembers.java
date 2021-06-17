@@ -7,6 +7,7 @@ import java.io.Serializable;
  * name(String), NRIC(String), relatedTo(String)
  */
 
+@SuppressWarnings("serial")
 public class FamilyMembers implements Serializable {
 
 	private String name, nric, relatedTo;

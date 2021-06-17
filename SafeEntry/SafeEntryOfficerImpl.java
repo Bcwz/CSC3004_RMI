@@ -14,9 +14,11 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+
 import classes.InfectedLocations;
 import classes.Transactions;
 
+@SuppressWarnings("serial")
 public class SafeEntryOfficerImpl extends java.rmi.server.UnicastRemoteObject implements SafeEntryOfficer {
 
 	private RMIClientIntf clientCallBack;
@@ -141,9 +143,11 @@ public class SafeEntryOfficerImpl extends java.rmi.server.UnicastRemoteObject im
 						StandardOpenOption.APPEND)) {
 					// Append the String to the end of the file
 					writer.write(locationBuilder);
+					
+					System.out.println("Infected location : " + location.getLocation() +" added to CSV");
 
 					// Perform a callback to inform the user of the result.
-					clientCallBack.callBack("Location added SUCCESS. Location: " + location.getLocation());
+					clientCallBack.callBack("Infected location added SUCCESS.\n Location: " + location.getLocation());
 				} catch (IOException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
@@ -263,7 +267,7 @@ public class SafeEntryOfficerImpl extends java.rmi.server.UnicastRemoteObject im
 								try {
 
 									// Perform a callback to inform the user of the result.
-									clientCallBack.callBack("Possible exposure user found: "
+									clientCallBack.callBack("Possible exposed user found: "
 											+ transactionList.get(transCounter).getName() + ". Sending notification.");
 
 								} catch (RemoteException e) {

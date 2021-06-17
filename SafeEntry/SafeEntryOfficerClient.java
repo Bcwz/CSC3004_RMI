@@ -14,6 +14,7 @@ import java.util.Scanner;
 
 import classes.InfectedLocations;
 
+@SuppressWarnings("serial")
 public class SafeEntryOfficerClient extends java.rmi.server.UnicastRemoteObject implements RMIClientIntf {
 
 	final static Scanner cc = new Scanner(System.in);

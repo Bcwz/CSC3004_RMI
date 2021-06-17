@@ -8,6 +8,7 @@ import java.io.Serializable;
  * checkInTime(String) of User, checkOutTime(String) of User.
  */
 
+@SuppressWarnings("serial")
 public class Transactions implements Serializable {
 
 	private String name, nric, location, type, checkInTime, checkOutTime;

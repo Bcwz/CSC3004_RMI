@@ -1,12 +1,11 @@
 
+import java.io.File;
 import java.rmi.Naming; //Import naming classes to bind to rmiregistry
-import java.rmi.RemoteException;
-import java.util.ArrayList;
 
 public class SafeEntryServer {
-	private ArrayList<String> clientListener = new ArrayList<String>();
-	private RMIClientIntf c;
 	static int port = 1099;
+	private static String infectedCSVPath = "./TraceTogetherInfectedLocations.csv";
+	private static String transactionCSVPath = "./TraceTogetherTransaction.csv";
 
 	// SafeEntryServer constructor
 	public SafeEntryServer() {
@@ -26,24 +25,25 @@ public class SafeEntryServer {
 			Naming.rebind("rmi://localhost:" + port + "/OfficerService", SEO);
 
 			System.out.println("Server started!");
+			
+			File checkInfectedLocationCSV = new File(infectedCSVPath);
+			File checkTraceCSV = new File(transactionCSVPath);
+			boolean infectedExists = checkInfectedLocationCSV.exists();
+			boolean TraceCSVExists = checkTraceCSV.exists();
+			if(infectedExists == false || TraceCSVExists == false) {
+				System.out.println("CSV files missing... \ncreating csv file....\n");
+				File locationCSV = new File(infectedCSVPath);
+				File TraceCSV = new File(transactionCSVPath);
+				locationCSV.createNewFile();
+				TraceCSV.createNewFile();
+				System.out.println("CSV files created successfully.\n");
+			}
 
 		} catch (Exception e) {
 			System.out.println("Server Error: " + e);
 		}
 	}
 
-	// Use to notify listener
-	private void addListener(String listenerNRIC) throws RemoteException {
-		clientListener.add(listenerNRIC);
-	}
-
-	private void removeListener(String listenerNRIC) throws RemoteException {
-		clientListener.remove(listenerNRIC);
-	}
-
-	private void notifyListener(RMIClientIntf client, String NRIC) throws RemoteException {
-
-	}
 
 	public static void main(String args[]) {
 		// Create the new Calculator server

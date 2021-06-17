@@ -8,6 +8,7 @@ import java.io.Serializable;
  * patient, checkOutTime(String) of COVID-19 patient
  */
 
+@SuppressWarnings("serial")
 public class InfectedLocations implements Serializable {
 
 	private String location, checkInTime, checkOutTime;

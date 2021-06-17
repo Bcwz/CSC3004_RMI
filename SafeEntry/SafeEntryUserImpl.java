@@ -20,9 +20,11 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.HashMap;
+
 import classes.Transactions;
 import classes.Users;
 
+@SuppressWarnings("serial")
 public class SafeEntryUserImpl extends java.rmi.server.UnicastRemoteObject implements SafeEntryUser {
 
 	private static RMIClientIntf clientCallBack;
@@ -94,7 +96,7 @@ public class SafeEntryUserImpl extends java.rmi.server.UnicastRemoteObject imple
 
 					// Add the connected user's NRIC to the list of connected clients
 					connectedClientList.add(checkInTransaction.getNric());
-
+					System.out.println("USER Self Checked in:" + checkInTransaction.getNric() + " at location : " + checkInTransaction.getLocation());
 					// Associate the user's NRIC and RMIClientIntf object to the HashMap. Used for
 					// notifying (callback) the connected user
 					registerClient(checkInTransaction.getNric(), clientCallBack);
@@ -170,6 +172,7 @@ public class SafeEntryUserImpl extends java.rmi.server.UnicastRemoteObject imple
 						// TODO Auto-generated catch block
 						e.printStackTrace();
 					}
+					System.out.println("USER Self Checked out:" + checkOutTransaction.getNric() + " at location : " + checkOutTransaction.getLocation());
 
 				} else {
 					try {

@@ -19,16 +19,17 @@ import classes.FamilyMembers;
 import classes.Transactions;
 import classes.Users;
 
+@SuppressWarnings("serial")
 public class SafeEntryUserClient extends java.rmi.server.UnicastRemoteObject implements RMIClientIntf {
 
 	final static Scanner cc = new Scanner(System.in);
-	final static String nricRegex = "^[STFG]\\d{7}[A-Z]$";
+	final static String nricRegex = "^(?i)[STFG]\\d{7}[A-Z]$";
 
 	public SafeEntryUserClient() throws RemoteException {
 	}
 
 	public void callBack(String s) throws java.rmi.RemoteException {
-		System.out.println("\nServer callback message: " + s + "\n");
+		System.out.println("\ncallback message: " + s + "\n");
 	}
 
 	public static void officerCallBackClient(String message) {
@@ -36,7 +37,7 @@ public class SafeEntryUserClient extends java.rmi.server.UnicastRemoteObject imp
 
 	}
 
-	public static void main(String[] args) throws UnsupportedEncodingException, FileNotFoundException, IOException {
+	public static void main(String[] args) throws UnsupportedEncodingException, FileNotFoundException, IOException, Exception {
 
 		String reg_host = "localhost";
 		int reg_port = 1099;
@@ -47,7 +48,10 @@ public class SafeEntryUserClient extends java.rmi.server.UnicastRemoteObject imp
 			reg_host = args[0];
 			reg_port = Integer.parseInt(args[1]);
 		}
-
+		// Runtime to catch CTRL + C interrupt
+		Runtime r=Runtime.getRuntime();  
+		r.addShutdownHook(new Thread(){});  
+		
 		try {
 
 			// Creation of client object
@@ -58,7 +62,7 @@ public class SafeEntryUserClient extends java.rmi.server.UnicastRemoteObject imp
 					.lookup("rmi://" + reg_host + ":" + reg_port + "/SafeEntryService");
 
 			// User input variables and the objects
-			int choice = 0;
+			String choice = "";
 			String clientName = "", clientNRIC = "", clientLocation = "", familyMemberName = "", familyMemberNRIC = "";
 			Transactions transactionObject = new Transactions();
 			FamilyMembers FamilyMemberObject = new FamilyMembers();
@@ -67,46 +71,46 @@ public class SafeEntryUserClient extends java.rmi.server.UnicastRemoteObject imp
 			
 
 			// Starting the application, reads user inputs
-			System.out.println("~~~~~~~~~~~~~~~~ Starting TraceTogether ~~~~~~~~~~~~~~~~ ");
+			System.out.println("~~~~~~~~~~~~~~~~~~ Starting TraceTogether ~~~~~~~~~~~~~~~~~~ ");
+			System.out.println("~~~~~~ Please enter your personal information to start ~~~~~~ ");
 			System.out.print("\nEnter name: ");
 			clientName = cc.nextLine();
-			System.out.print("Enter NRIC: ");
+			System.out.print("Enter NRIC (case insensitive) : ");
 			clientNRIC = cc.nextLine();
 			while (!clientNRIC.matches(nricRegex)) {
 				System.out.print("Wrong NRIC format. Please try again. Enter NRIC: ");
 				clientNRIC = cc.nextLine();
 			}
-			System.out.print("Enter location: ");
+			System.out.print("Enter your current location: ");
 			clientLocation = cc.nextLine();
 		
 			while (true) {
 
 				System.out.println(
-						"\n\nEnter 1 for Self Check-in\nEnter 2 for Self Check-out\nEnter 3 for Group Check-in\nEnter 4 for Group Check-out\nEnter 5 to view history\nEnter 6 to add new family member\nEnter 7 to delete existing family member\nEnter 8 to exit");
-				choice = cc.nextInt();
-
+						"\n\nEnter 1 for Self Check-in\nEnter 2 for Self Check-out\nEnter 3 for Group Check-in\nEnter 4 for Group Check-out\nEnter 5 to view history\nEnter 6 to add new group / family member\nEnter 7 to delete existing group / family member\nEnter 8 to exit");
+				choice = cc.nextLine();
 				switch (choice) {
-				case 1: // Performs a self check-in. selfCheckIn() invocation method called
+				case "1": // Performs a self check-in. selfCheckIn() invocation method called
 
 					System.out.println("\nSelf Check-in selected\n");
 					transactionObject = new Transactions(clientName, clientNRIC, clientLocation);
 					SEUser.selfCheckIn(SEC, transactionObject);
 					break;
 					
-				case 2: // Performs a self check-out. selfCheckOut() invocation method called
+				case "2": // Performs a self check-out. selfCheckOut() invocation method called
 
 					System.out.println("\nSelf Check-out selected\n");
 					transactionObject = new Transactions(clientName, clientNRIC, clientLocation);
 					SEUser.selfCheckOut(SEC, transactionObject);
 					break;
 
-				case 3: // Performs a group check-in. groupCheckIn() invocation method called
+				case "3": // Performs a group check-in. groupCheckIn() invocation method called
 					
 					System.out.println("\nGroup Check-in selected\n");
 					
 					// Check if the familyMembersList is empty
 					if (familyMembersList.isEmpty()) {
-						System.out.println("No family member found. Please add one family member.");
+						System.out.println("No family member found. Please add at least one family member first (Press 6).");
 					} else {
 						
 						// Create Transactions objects based on family member list
@@ -120,7 +124,7 @@ public class SafeEntryUserClient extends java.rmi.server.UnicastRemoteObject imp
 					}
 					break;
 
-				case 4: // Performs a group check-out. groupCheckOut() invocation method called
+				case "4": // Performs a group check-out. groupCheckOut() invocation method called
 					
 					System.out.println("\nGroup Check-out selected\n");
 					
@@ -133,13 +137,13 @@ public class SafeEntryUserClient extends java.rmi.server.UnicastRemoteObject imp
 
 					break;
 
-				case 5: // View user's history. viewHistory() invocation method called
+				case "5": // View user's history. viewHistory() invocation method called
 
 					System.out.println("\nView history selected\n");
 					SEUser.viewHistory(SEC, new Users(clientName, clientNRIC));
 					break;
 
-				case 6: // Add family members to the familyMembersList. Does not perform any invocation methods
+				case "6": // Add family members to the familyMembersList. Does not perform any invocation methods
 					
 					cc.nextLine();
 					familyMemberNRIC = "";
@@ -160,7 +164,7 @@ public class SafeEntryUserClient extends java.rmi.server.UnicastRemoteObject imp
 					}
 					break;
 					
-				case 7:  // Remove family members from the familyMembersList. Does not perform any invocation methods
+				case "7":  // Remove family members from the familyMembersList. Does not perform any invocation methods
 					
 					System.out.println("\nDelete family member selected");
 					if (familyMembersList.isEmpty()) {
@@ -179,14 +183,14 @@ public class SafeEntryUserClient extends java.rmi.server.UnicastRemoteObject imp
 					}
 					break;
 
-				case 8:  // Exit the client program
+				case "8":  // Exit the client program
 					System.out.println("Exiting");
 					System.exit(0);
 
 				default:
-					System.out.println("Invalid choice");
+					System.out.println("Invalid choice. Please enter ONLY 1 to 8");
 				}
-
+				
 			}
 		}
 
@@ -206,6 +210,9 @@ public class SafeEntryUserClient extends java.rmi.server.UnicastRemoteObject imp
 			System.out.println();
 			System.out.println("java.lang.ArithmeticException");
 			System.out.println(ae);
+		} catch (Exception e){
+			System.out.println();
+			
 		}
 	}
 }

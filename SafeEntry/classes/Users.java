@@ -7,6 +7,7 @@ import java.io.Serializable;
  * id(ObjectId), name(String), NRIC(String), userType(String), password(String),
  * healthStatus(String) of User.
  */
+@SuppressWarnings("serial")
 public class Users implements Serializable {
 
 	private String name, nric, healthStatus;
