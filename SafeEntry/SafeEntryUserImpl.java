@@ -103,7 +103,9 @@ public class SafeEntryUserImpl extends java.rmi.server.UnicastRemoteObject imple
 
 					// Perform a callback to inform the user of the result.
 					clientCallBack.callBack("Check-in SUCCESS. NRIC: " + checkInTransaction.getNric());
-
+					writer.close();
+					
+					
 				} catch (IOException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
@@ -235,7 +237,7 @@ public class SafeEntryUserImpl extends java.rmi.server.UnicastRemoteObject imple
 							// Perform a callback to inform the user of the result.
 							clientCallBack.callBack("Check-in SUCCESS for family member. NRIC : "
 									+ checkInTransactionList.get(counter).getNric());
-
+							writer.close();
 						} catch (IOException e) {
 							// TODO Auto-generated catch block
 							e.printStackTrace();
