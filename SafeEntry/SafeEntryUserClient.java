@@ -68,6 +68,7 @@ public class SafeEntryUserClient extends java.rmi.server.UnicastRemoteObject imp
 			FamilyMembers FamilyMemberObject = new FamilyMembers();
 			ArrayList<FamilyMembers> familyMembersList = new ArrayList<FamilyMembers>();
 			ArrayList<Transactions> familyTransactionList = new ArrayList<Transactions>();
+		
 			
 
 			// Starting the application, reads user inputs
@@ -83,7 +84,8 @@ public class SafeEntryUserClient extends java.rmi.server.UnicastRemoteObject imp
 			}
 			System.out.print("Enter your current location: ");
 			clientLocation = cc.nextLine();
-		
+			transactionObject = new Transactions(clientName, clientNRIC, clientLocation);
+            familyTransactionList.add(transactionObject);
 			while (true) {
 
 				System.out.println(
@@ -114,12 +116,11 @@ public class SafeEntryUserClient extends java.rmi.server.UnicastRemoteObject imp
 					} else {
 						
 						// Create Transactions objects based on family member list
-						familyTransactionList.removeAll(familyTransactionList);
+//						familyTransactionList.removeAll(familyTransactionList);
 						for (int counter = 0; counter < familyMembersList.size(); counter++) {
 							familyTransactionList.add(new Transactions(familyMembersList.get(counter).getName(),
 									familyMembersList.get(counter).getNric(), clientLocation));
 						}
-
 						SEUser.groupCheckIn(SEC, familyTransactionList);
 					}
 					break;
@@ -132,6 +133,7 @@ public class SafeEntryUserClient extends java.rmi.server.UnicastRemoteObject imp
 					if (familyMembersList.isEmpty()) {
 						System.out.println("No family member found. Please add one family member.");
 					} else {
+
 						SEUser.groupCheckOut(SEC, familyTransactionList);
 					}
 
@@ -145,7 +147,7 @@ public class SafeEntryUserClient extends java.rmi.server.UnicastRemoteObject imp
 
 				case "6": // Add family members to the familyMembersList. Does not perform any invocation methods
 					
-					cc.nextLine();
+					//cc.nextLine();
 					familyMemberNRIC = "";
 					System.out.print("\nAdd new family member\nEnter name: ");
 					familyMemberName = cc.nextLine();
@@ -175,22 +177,20 @@ public class SafeEntryUserClient extends java.rmi.server.UnicastRemoteObject imp
 							System.out.println("Name: " + familyMembersList.get(counter).getName());
 							System.out.println("NRIC: " + familyMembersList.get(counter).getNric());
 						}
-						System.out.print("Select record to delete: ");
+						System.out.print("Select record number to delete (Enter only digits): ");
 						int record = cc.nextInt();
 
 						familyMembersList.remove(record - 1);
 						System.out.println("Family member deleted sucessfully");
 					}
 					break;
-
 				case "8":  // Exit the client program
 					System.out.println("Exiting");
 					System.exit(0);
-
+	
 				default:
 					System.out.println("Invalid choice. Please enter ONLY 1 to 8");
 				}
-				
 			}
 		}
 
