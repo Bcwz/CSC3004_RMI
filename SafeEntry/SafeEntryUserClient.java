@@ -14,6 +14,7 @@ import java.rmi.NotBoundException; //Import the NotBoundException class so you c
 import java.rmi.RemoteException; //Import the RemoteException class so you can catch it
 import java.util.ArrayList;
 import java.util.Scanner;
+import java.util.concurrent.TimeUnit;
 
 import classes.FamilyMembers;
 import classes.Transactions;
@@ -37,7 +38,8 @@ public class SafeEntryUserClient extends java.rmi.server.UnicastRemoteObject imp
 
 	}
 
-	public static void main(String[] args) throws UnsupportedEncodingException, FileNotFoundException, IOException, Exception {
+	public static void main(String[] args)
+			throws UnsupportedEncodingException, FileNotFoundException, IOException, Exception {
 
 		String reg_host = "localhost";
 		int reg_port = 1099;
@@ -49,15 +51,17 @@ public class SafeEntryUserClient extends java.rmi.server.UnicastRemoteObject imp
 			reg_port = Integer.parseInt(args[1]);
 		}
 		// Runtime to catch CTRL + C interrupt
-		Runtime r=Runtime.getRuntime();  
-		r.addShutdownHook(new Thread(){});  
-		
+		Runtime r = Runtime.getRuntime();
+		r.addShutdownHook(new Thread() {
+		});
+
 		try {
 
 			// Creation of client object
 			SafeEntryUserClient SEC = new SafeEntryUserClient();
 
-			// Create the reference to the remote object through the RMIregistry. Remote methods are called through the SEUser obj
+			// Create the reference to the remote object through the RMIregistry. Remote
+			// methods are called through the SEUser obj
 			SafeEntryUser SEUser = (SafeEntryUser) Naming
 					.lookup("rmi://" + reg_host + ":" + reg_port + "/SafeEntryService");
 
@@ -68,8 +72,6 @@ public class SafeEntryUserClient extends java.rmi.server.UnicastRemoteObject imp
 			FamilyMembers FamilyMemberObject = new FamilyMembers();
 			ArrayList<FamilyMembers> familyMembersList = new ArrayList<FamilyMembers>();
 			ArrayList<Transactions> familyTransactionList = new ArrayList<Transactions>();
-		
-			
 
 			// Starting the application, reads user inputs
 			System.out.println("~~~~~~~~~~~~~~~~~~ Starting TraceTogether ~~~~~~~~~~~~~~~~~~ ");
@@ -85,11 +87,11 @@ public class SafeEntryUserClient extends java.rmi.server.UnicastRemoteObject imp
 			System.out.print("Enter your current location: ");
 			clientLocation = cc.nextLine();
 			transactionObject = new Transactions(clientName, clientNRIC, clientLocation);
-            familyTransactionList.add(transactionObject);
+			familyTransactionList.add(transactionObject);
 			while (true) {
 
 				System.out.println(
-						"\n\nEnter 1 for Self Check-in\nEnter 2 for Self Check-out\nEnter 3 for Group Check-in\nEnter 4 for Group Check-out\nEnter 5 to view history\nEnter 6 to add new group / family member\nEnter 7 to delete existing group / family member\nEnter 8 to exit");
+						"\n\nEnter 1 for Self Check-in\nEnter 2 for Self Check-out\nEnter 3 for Group Check-in\nEnter 4 for Group Check-out\nEnter 5 to view history\nEnter 6 to add new group / family member\nEnter 7 to delete existing group / family member\nEnter 8 to exit\nEnter 9 to stress test the system\n");
 				choice = cc.nextLine();
 				switch (choice) {
 				case "1": // Performs a self check-in. selfCheckIn() invocation method called
@@ -98,7 +100,7 @@ public class SafeEntryUserClient extends java.rmi.server.UnicastRemoteObject imp
 					transactionObject = new Transactions(clientName, clientNRIC, clientLocation);
 					SEUser.selfCheckIn(SEC, transactionObject);
 					break;
-					
+
 				case "2": // Performs a self check-out. selfCheckOut() invocation method called
 
 					System.out.println("\nSelf Check-out selected\n");
@@ -107,14 +109,15 @@ public class SafeEntryUserClient extends java.rmi.server.UnicastRemoteObject imp
 					break;
 
 				case "3": // Performs a group check-in. groupCheckIn() invocation method called
-					
+
 					System.out.println("\nGroup Check-in selected\n");
-					
+
 					// Check if the familyMembersList is empty
 					if (familyMembersList.isEmpty()) {
-						System.out.println("No family member found. Please add at least one family member first (Press 6).");
+						System.out.println(
+								"No family member found. Please add at least one family member first (Press 6).");
 					} else {
-						
+
 						// Create Transactions objects based on family member list
 //						familyTransactionList.removeAll(familyTransactionList);
 						for (int counter = 0; counter < familyMembersList.size(); counter++) {
@@ -126,9 +129,9 @@ public class SafeEntryUserClient extends java.rmi.server.UnicastRemoteObject imp
 					break;
 
 				case "4": // Performs a group check-out. groupCheckOut() invocation method called
-					
+
 					System.out.println("\nGroup Check-out selected\n");
-					
+
 					// Check if the familyMembersList is empty
 					if (familyMembersList.isEmpty()) {
 						System.out.println("No family member found. Please add one family member.");
@@ -145,9 +148,10 @@ public class SafeEntryUserClient extends java.rmi.server.UnicastRemoteObject imp
 					SEUser.viewHistory(SEC, new Users(clientName, clientNRIC));
 					break;
 
-				case "6": // Add family members to the familyMembersList. Does not perform any invocation methods
-					
-					//cc.nextLine();
+				case "6": // Add family members to the familyMembersList. Does not perform any invocation
+							// methods
+
+					// cc.nextLine();
 					familyMemberNRIC = "";
 					System.out.print("\nAdd new family member\nEnter name: ");
 					familyMemberName = cc.nextLine();
@@ -165,9 +169,10 @@ public class SafeEntryUserClient extends java.rmi.server.UnicastRemoteObject imp
 						System.out.println("Family member added sucessfully");
 					}
 					break;
-					
-				case "7":  // Remove family members from the familyMembersList. Does not perform any invocation methods
-					
+
+				case "7": // Remove family members from the familyMembersList. Does not perform any
+							// invocation methods
+
 					System.out.println("\nDelete family member selected");
 					if (familyMembersList.isEmpty()) {
 						System.out.println("No family member found!");
@@ -184,10 +189,33 @@ public class SafeEntryUserClient extends java.rmi.server.UnicastRemoteObject imp
 						System.out.println("Family member deleted sucessfully");
 					}
 					break;
-				case "8":  // Exit the client program
+				case "8": // Exit the client program
 					System.out.println("Exiting");
 					System.exit(0);
-	
+
+				case "9": // testing case
+					System.out.println("Starting non-threaded 100 check-in and check-out\n\n");
+
+					long nonThreadStartTime = System.nanoTime();
+					for (int t = 0; t < 100; t++) {
+						transactionObject = new Transactions(clientName, clientNRIC, clientLocation);
+						SEUser.nonThreadSelfCheckIn(SEC, transactionObject);
+					}
+					long nonThreadStopTime = System.nanoTime();
+					System.out.println("Non-threaded execution speed: "
+							+ (TimeUnit.NANOSECONDS.toMillis(nonThreadStopTime - nonThreadStartTime)));
+
+					System.out.println("Starting threaded 100 check-in and check-out\n\n");
+
+					long threadedStartTime = System.nanoTime();
+					for (int t = 0; t < 100; t++) {
+						transactionObject = new Transactions(clientName, clientNRIC, clientLocation);
+						SEUser.selfCheckIn(SEC, transactionObject);
+					}
+					long threadedStopTime = System.nanoTime();
+					System.out.println("Threaded execution speed: "
+							+ (TimeUnit.NANOSECONDS.toMillis(threadedStopTime - threadedStartTime)));
+
 				default:
 					System.out.println("Invalid choice. Please enter ONLY 1 to 8");
 				}
@@ -210,9 +238,9 @@ public class SafeEntryUserClient extends java.rmi.server.UnicastRemoteObject imp
 			System.out.println();
 			System.out.println("java.lang.ArithmeticException");
 			System.out.println(ae);
-		} catch (Exception e){
+		} catch (Exception e) {
 			System.out.println();
-			
+
 		}
 	}
 }

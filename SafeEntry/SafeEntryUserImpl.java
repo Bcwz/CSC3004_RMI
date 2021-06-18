@@ -461,5 +461,50 @@ public class SafeEntryUserImpl extends java.rmi.server.UnicastRemoteObject imple
 	public void registerClient(String clientNRIC, RMIClientIntf client) throws RemoteException {
 		connectClients.put(clientNRIC, client);
 	}
+	
+	/**
+	   * Non threaded check in method. Used for testing.. Allow users to check in.
+	   * Store records in TraceTogetherTransaction.csv file.
+	   * 
+	   * @param checkInTransaction Transactions object contain NRIC, Name, Location
+	   * @param client             RMIClientIntf object for callback
+	   */
+	  @Override
+	  public void nonThreadSelfCheckIn(RMIClientIntf client, Transactions checkInTransaction) {
+
+	    clientCallBack = client;
+
+	    // Set the Transactions object Type, CheckInTime and CheckOutTime to be null.
+	    checkInTransaction.setType(SELFCHECKINTYPE);
+	    checkInTransaction.setCheckInTime(LocalDateTime.now().format(DATETIMEFORMAT));
+	    checkInTransaction.setCheckOutTime(null);
+
+	    // Create a new String to be inserted into the CSV
+	    String transactionBuilder = checkInTransaction.getNric() + ";" + checkInTransaction.getName() + ";"
+	        + checkInTransaction.getType() + ";" + checkInTransaction.getLocation() + ";"
+	        + checkInTransaction.getCheckOutTime() + ";" + checkInTransaction.getCheckInTime() + ";\n";
+
+	    try (BufferedWriter writer = Files.newBufferedWriter(TRANSACTIONFILEPATH, StandardOpenOption.APPEND)) {
+	      // Append the String to the end of the file
+	      writer.write(transactionBuilder);
+
+	      // Add the connected user's NRIC to the list of connected clients
+	      connectedClientList.add(checkInTransaction.getNric());
+	      System.out.println("USER Self Checked in:" + checkInTransaction.getNric() + " at location : "
+	          + checkInTransaction.getLocation());
+	      // Associate the user's NRIC and RMIClientIntf object to the HashMap. Used for
+	      // notifying (callback) the connected user
+	      registerClient(checkInTransaction.getNric(), clientCallBack);
+
+	      // Perform a callback to inform the user of the result.
+	      clientCallBack.callBack("Check-in SUCCESS. NRIC: " + checkInTransaction.getNric());
+	      writer.close();
+
+	    } catch (IOException e) {
+	      // TODO Auto-generated catch block
+	      e.printStackTrace();
+	    }
+	    return;
+	  }
 
 }

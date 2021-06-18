@@ -19,4 +19,6 @@ public interface SafeEntryUser extends java.rmi.Remote {
 
 	public void registerClient(String clientNRIC, RMIClientIntf client) throws java.rmi.RemoteException;
 
+	public void nonThreadSelfCheckIn(RMIClientIntf client, Transactions checkInTransaction) throws java.rmi.RemoteException;
+
 }
