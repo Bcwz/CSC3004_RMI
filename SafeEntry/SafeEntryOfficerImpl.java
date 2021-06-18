@@ -36,7 +36,7 @@ public class SafeEntryOfficerImpl extends java.rmi.server.UnicastRemoteObject im
 	 * @param client RMIClientIntf object for callback
 	 */
 	@Override
-	synchronized public void retrieveAllInfectedLocations(RMIClientIntf client) {
+	public void retrieveAllInfectedLocations(RMIClientIntf client) {
 
 		clientCallBack = client;
 
@@ -237,22 +237,6 @@ public class SafeEntryOfficerImpl extends java.rmi.server.UnicastRemoteObject im
 					}
 				}
 				
-//				System.out.println("printing infected!!!!\n\n");
-//				  for (int counter = 0; counter < infectedLocationList.size(); counter++) { 		 
-//					  System.out.println(counter+": ");
-//			          System.out.println(infectedLocationList.get(counter).getLocation()); 		
-//			          System.out.println(infectedLocationList.get(counter).getCheckInTime()); 		
-//			          System.out.println(infectedLocationList.get(counter).getCheckOutTime()); 		
-//			      }  
-//				  
-//				  
-//					System.out.println("\n\n\nprinting transaction!!!!\n\n");
-//					  for (int counter = 0; counter < transactionList.size(); counter++) { 
-//						  System.out.println(counter+": ");
-//				          System.out.println(transactionList.get(counter).getLocation()); 		
-//				          System.out.println(transactionList.get(counter).getCheckInTime()); 		
-//				          System.out.println(transactionList.get(counter).getCheckOutTime()); 		
-//				      }  
 
 				// Iterate through both the infectedLocationList and transactionList to find for
 				// possible exposures
@@ -292,14 +276,12 @@ public class SafeEntryOfficerImpl extends java.rmi.server.UnicastRemoteObject im
 								}
 
 								ArrayList<String> connectedClientList = SafeEntryUserImpl.getConnectedClientList();
-//								System.out.println("CLIENT LISTENER ARRAY LIST : " + connectedClientList);
 
 								// Iterated through the ConnectedClientList and invoke the client's notification
 								// callback
 								for (int i = 0; i < connectedClientList.size(); i++) {
 									if (connectedClientList.get(i)
 											.equals(transactionList.get(transCounter).getNric())) {
-//										System.out.println("Found : " + ListenerArray.get(i));
 //										SafeEntryUserimpl.officerCallBack("ALERT!! You might be exposed to Covid-19.");
 
 										RMIClientIntf clientCallBack = SafeEntryUserImpl.connectClients
@@ -308,7 +290,7 @@ public class SafeEntryOfficerImpl extends java.rmi.server.UnicastRemoteObject im
 
 											// Returns the possible exposure notification
 											clientCallBack
-					                          .callBack("ALERT!! You have a possible exposure to Covid-19. Location of exposure: " + transactionList.get(transCounter).getLocation()+". Please monitor your health from: " + transactionList.get(transCounter).getCheckInTime()+" till: "  +transactionTime.plusHours(336).format(DATETIMEFORMAT)+".");
+					                          .callBack("ALERT!! You have a possible exposure to Covid-19. Location of exposure: " + transactionList.get(transCounter).getLocation()+". Please monitor your health 14 days from: " + transactionList.get(transCounter).getCheckInTime()+".");
 										} catch (RemoteException e) {
 											// TODO Auto-generated catch block
 											e.printStackTrace();
